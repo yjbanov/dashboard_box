@@ -20,7 +20,7 @@
     <dict>
       <!-- The ID of the Android device used for performance testing -->
       <key>ANDROID_DEVICE_ID</key>
-      <string>T01130LGM9</string>
+      <string>AG860440G62GIGC</string>
     </dict>
 
     <key>StandardOutPath</key>
