@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN"
+  "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+  <dict>
+    <key>Label</key>
+    <string>Flutter Dashboard Build</string>
+
+    <key>ProgramArguments</key>
+    <array>
+      <string>/bin/sh</string>
+      <string>-c</string>
+      <string>~/flutter_dashboard/dashboard_box/run.sh</string>
+    </array>
+
+    <key>StartInterval</key>
+    <integer>3600</integer>
+
+    <key>EnvironmentVariables</key>
+    <dict>
+      <!-- The ID of the Android device used for performance testing -->
+      <key>ANDROID_DEVICE_ID</key>
+      <string>T01130LGM9</string>
+    </dict>
+
+    <key>StandardOutPath</key>
+    <string>/tmp/flutter.dashboard.stdout</string>
+
+    <key>StandardErrorPath</key>
+    <string>/tmp/flutter.dashboard.stderr</string>
+  </dict>
+</plist>
