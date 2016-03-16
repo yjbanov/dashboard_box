@@ -4,7 +4,7 @@
 <plist version="1.0">
   <dict>
     <key>Label</key>
-    <string>Flutter Dashboard Build</string>
+    <string>io.flutter.dashboard</string>
 
     <key>ProgramArguments</key>
     <array>
