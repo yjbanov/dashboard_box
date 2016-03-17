@@ -13,10 +13,13 @@ To test this script locally:
 - Complete the [Flutter Setup](https://flutter.io/setup/), if you haven't
   already. Note, however, that this job will install its own copy of Flutter.
 - Connect an Android device
-- Set `ANDROID_DEVICE_ID_OVERRIDE` environment variable to the ID of your device
-  as reported by `flutter devices` command (this is because the ID of the device
+- Set `ANDROID_DEVICE_ID` environment variable to the ID of your device as
+  reported by `flutter devices` command (this is because the ID of the device
   connected to the box is not the same as yours)
-- Launch the job `launchctl start job.plist`
+- Launch `run.sh`. Or, if you are testing the `lanuchd` configuration, then
+  `launchctl start job.plist`, but don't forget to kill the job after testing,
+  otherwise it will spin on your computer forever, draining all kinds of
+  resources (`launchctl remove io.flutter.dashboard`).
 
 If `launchd` was able to run the script, you will be able to find the output in
 `/tmp/flutter.dashboard.stdout` (standard output) and in

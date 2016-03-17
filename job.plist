@@ -16,13 +16,6 @@
     <key>StartInterval</key>
     <integer>3600</integer>
 
-    <key>EnvironmentVariables</key>
-    <dict>
-      <!-- The ID of the Android device used for performance testing -->
-      <key>ANDROID_DEVICE_ID</key>
-      <string>AG860440G62GIGC</string>
-    </dict>
-
     <key>StandardOutPath</key>
     <string>/tmp/flutter.dashboard.stdout</string>
 

@@ -6,6 +6,10 @@ echo "-----------------------------------------"
 echo "Build started on $(date)"
 echo "-----------------------------------------"
 
+# The ID of the Android device used for performance testing, can be overridden
+# externally
+export ANDROID_DEVICE_ID=${ANDROID_DEVICE_ID:-"AG860440G62GIGC"}
+
 ROOT_DIRECTORY=$(dirname $(dirname $0))
 DASHBOARD_DIRECTORY="$ROOT_DIRECTORY/dashboard"
 FLUTTER_DIRECTORY="$ROOT_DIRECTORY/flutter"
