@@ -17,6 +17,7 @@ export ANDROID_DEVICE_ID=${ANDROID_DEVICE_ID:-"AG860440G62GIGC"}
 ROOT_DIRECTORY=$(absolute_path "$(dirname $(dirname $0))")
 DASHBOARD_DIRECTORY="$ROOT_DIRECTORY/dashboard"
 JEKYLL_DIRECTORY="$ROOT_DIRECTORY/dashboard_box/jekyll"
+JEKYLL_BIN=${JEKYLL_BIN:-"/usr/local/bin/jekyll"}
 DATA_DIRECTORY="$JEKYLL_DIRECTORY/_data"
 FLUTTER_DIRECTORY="$ROOT_DIRECTORY/flutter"
 SCRIPTS_DIRECTORY="$ROOT_DIRECTORY/dashboard_box"
@@ -29,7 +30,7 @@ echo "DASHBOARD_DIRECTORY: $DASHBOARD_DIRECTORY"
 echo "DATA_DIRECTORY: $DATA_DIRECTORY"
 echo "FLUTTER_DIRECTORY: $FLUTTER_DIRECTORY"
 echo "ANDROID_DEVICE_ID: $ANDROID_DEVICE_ID"
-echo "Jekyll version: $(jekyll --version)"
+echo "Jekyll version: $($JEKYLL_BIN --version)"
 
 if [[ -d $DATA_DIRECTORY ]]; then
   rm -rf $DATA_DIRECTORY
@@ -94,7 +95,7 @@ echo "}" >> ${BUILD_INFO_FILE}
 if [[ -d tmp ]]; then
   rm -rf tmp
 fi
-jekyll build --source $JEKYLL_DIRECTORY --destination tmp/
+$JEKYLL_BIN build --source $JEKYLL_DIRECTORY --destination tmp/
 
 if [[ -d current ]]; then
   TIMESTAMP=$(date +"%y-%m-%d-%H%M%S")
