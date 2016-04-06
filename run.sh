@@ -73,6 +73,7 @@ runTest $FLUTTER_DIRECTORY/dev/benchmarks/complex_layout test_driver/scroll_perf
 # Generate dashboard
 # --------------------------
 
+mkdir -p $DASHBOARD_DIRECTORY
 cd $DASHBOARD_DIRECTORY
 
 SUMMARIES="{"
