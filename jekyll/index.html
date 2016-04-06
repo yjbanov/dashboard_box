@@ -1,0 +1,28 @@
+---
+layout: default
+---
+
+<div style="text-align: right">
+  Last built: {{ site.data.build['build_timestamp'] }}
+</div>
+
+{% for summary in site.data.summaries %}
+{% if summary[0] != 'blank' %}
+<div class="perf-test-summary-card">
+  <h2>{{ summary[0] }}</h2>
+  <div class="metric-section">
+    Avg. build time: {{ summary[1]['average_frame_build_time_millis'] | round: 2 }} ms
+  </div>
+  <div class="metric-section">
+{% if summary[1]['missed_frame_build_budget_count'] > 0 %}
+    <span class="warning metric">{{ summary[1]['missed_frame_build_budget_count'] }}</span>
+    out of
+    <span class="metric">{{ summary[1]['frame_count'] }}</span>
+    frames missed
+{% else %}
+    <span class="congrats">All <span class="metric">{{ summary[1]['frame_count'] }}</span> frames ✓</span>
+{% endif %}
+  </div>
+</div>
+{% endif %}
+{% endfor %}

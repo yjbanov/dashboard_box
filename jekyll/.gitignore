@@ -1,0 +1,6 @@
+.idea
+*.zip
+_site
+_data
+.sass-cache
+.jekyll-metadata

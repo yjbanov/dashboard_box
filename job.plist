@@ -13,8 +13,13 @@
       <string>~/flutter_dashboard/dashboard_box/run.sh</string>
     </array>
 
+    <!-- Run every hour -->
     <key>StartInterval</key>
     <integer>3600</integer>
+
+    <!-- Time out if the job doesn't exit in 10 minutes -->
+    <key>ExitTimeOut</key>
+    <integer>600</integer>
 
     <key>StandardOutPath</key>
     <string>/tmp/flutter.dashboard.stdout</string>
