@@ -95,3 +95,55 @@ header > #links > a:hover {
 .congrats {
   color: green;
 }
+
+.frames {
+  display: flex;
+  position: relative;
+  flex-direction: row;
+  align-items: flex-end;
+  margin-left: 30px;
+  width: 100%;
+  border: 1px solid #81C784;
+}
+
+@mixin budget {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  border-top: 1px dashed #81C784;
+  text-align: right;
+  font-size: 70%;
+  padding-right: 5px;
+  padding-top: 2px;
+}
+
+.frame-budget-indicator {
+  @include budget;
+  background-color: #E8F5E9;
+  z-index: 1;
+}
+
+.frame-60FPS-indicator {
+  @include budget;
+  background-color: #F9FBE7;
+  z-index: 0;
+}
+
+@mixin frame($color) {
+  width: 5px;
+  z-index: 2;
+  background-color: $color;
+}
+
+.good-frame {
+  @include frame(green);
+}
+
+.bad-frame {
+  @include frame(#F44336);
+}
+
+.terrible-frame {
+  @include frame(#880E4F);
+}
