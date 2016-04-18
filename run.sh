@@ -21,6 +21,7 @@ JEKYLL_BIN=${JEKYLL_BIN:-"/usr/local/bin/jekyll"}
 DATA_DIRECTORY="$JEKYLL_DIRECTORY/_data"
 FLUTTER_DIRECTORY="$ROOT_DIRECTORY/flutter"
 SCRIPTS_DIRECTORY="$ROOT_DIRECTORY/dashboard_box"
+GSUTIL=${GSUTIL:-"~/google-cloud-sdk/bin/gsutil"}
 
 BUILD_INFO_FILE="$DATA_DIRECTORY/build.json"
 SUMMARIES_FILE="$DATA_DIRECTORY/summaries.json"
@@ -103,6 +104,8 @@ if [[ -d current ]]; then
 fi
 
 mv tmp current
+
+$GSUTIL -m rsync -d -R -p $DASHBOARD_DIRECTORY gs://flutter-dashboard
 
 echo "-----------------------------------------"
 echo "Build finished on $(date)"
