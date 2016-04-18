@@ -95,7 +95,7 @@ echo "}" >> ${BUILD_INFO_FILE}
 if [[ -d tmp ]]; then
   rm -rf tmp
 fi
-$JEKYLL_BIN build --config _config_prod.yml --source $JEKYLL_DIRECTORY --destination tmp/
+$JEKYLL_BIN build --config $JEKYLL_DIRECTORY/_config_prod.yml --source $JEKYLL_DIRECTORY --destination tmp/
 
 if [[ -d current ]]; then
   TIMESTAMP=$(date +"%y-%m-%d-%H%M%S")
