@@ -1,0 +1,15 @@
+# Development config (see _config_prod.yml for production config file)
+#
+# To run:
+#
+# $ jekyll serve --config=_config_dev.yml
+
+# Site settings
+title: Flutter - Dashboard (Dev Server)
+email: yjbanov@google.com
+description: Flutter project dashboard.
+baseurl: "/flutter-dashboard/current" # the subpath of your site, e.g. /blog
+url: "" # the base hostname & protocol for your site
+
+# Build settings
+markdown: kramdown
