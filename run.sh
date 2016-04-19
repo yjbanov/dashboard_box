@@ -107,6 +107,8 @@ fi
 mv tmp current
 
 $GSUTIL -m rsync -d -R -p $DASHBOARD_DIRECTORY gs://flutter-dashboard
+$GSUTIL -m acl ch -R -g 'google.com:R' gs://flutter-dashboard/current
+$GSUTIL -m acl ch -R -g 'goog.flutter.dashboard@gmail.com:R' gs://flutter-dashboard/current
 
 echo "-----------------------------------------"
 echo "Build finished on $(date)"
