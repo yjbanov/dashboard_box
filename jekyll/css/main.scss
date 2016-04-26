@@ -4,7 +4,7 @@
 @charset "utf-8";
 
 $page-padding: 20px;
-$primary-bg-color: #9C27B0;
+$primary-bg-color: #917FFF;
 $accent-color: #64FFDA;
 
 * {
@@ -17,7 +17,7 @@ a {
 }
 
 body {
-  font-family: Quicksand, sans-serif;
+  font-family: 'Roboto', sans-serif;
   font-size: 24px;
   background-color: #eee;
   font-weight: 300;
@@ -40,7 +40,7 @@ header > * {
 }
 
 header > #logo {
-  font-weight: 400;
+  font-weight: 300;
   left: $page-padding;
 }
 
@@ -60,6 +60,11 @@ header > #links > a {
 header > #links > a:hover {
   transition: all 0.05s linear;
   border-bottom: 5px solid $accent-color;
+}
+
+h2 {
+  font-size: 30px;
+  font-weight: 300;
 }
 
 .page-content {
@@ -84,8 +89,12 @@ header > #links > a:hover {
   margin-top: 10px;
 }
 
+span.metric-section + span.metric-section {
+  padding-left: 30px;
+}
+
 .metric {
-  font-weight: bold;
+  font-weight: 300;
 }
 
 .warning {
@@ -141,9 +150,9 @@ header > #links > a:hover {
 }
 
 .bad-frame {
-  @include frame(#F44336);
+  @include frame(#FF2222);
 }
 
 .terrible-frame {
-  @include frame(#880E4F);
+  @include frame(#CC2222);
 }

@@ -25,6 +25,7 @@ GSUTIL=${GSUTIL:-"/Users/$USER/google-cloud-sdk/bin/gsutil"}
 
 BUILD_INFO_FILE="$DATA_DIRECTORY/build.json"
 SUMMARIES_FILE="$DATA_DIRECTORY/summaries.json"
+ANALYSIS_FILE="$DATA_DIRECTORY/analysis.json"
 
 echo "ROOT_DIRECTORY: $ROOT_DIRECTORY"
 echo "DASHBOARD_DIRECTORY: $DASHBOARD_DIRECTORY"
@@ -52,6 +53,7 @@ export PATH=$(pwd)/flutter/bin:$PATH
 export PATH=$(pwd)/flutter/bin/cache/dart-sdk/bin:$PATH
 
 flutter doctor
+flutter update-packages
 
 
 # --------------------------
@@ -90,6 +92,16 @@ done
 SUMMARIES="${SUMMARIES} \"blank\": {}}"
 echo $SUMMARIES > $SUMMARIES_FILE
 
+set +e
+flutter analyze \
+  --benchmark-out=$DATA_DIRECTORY/flutter_analyze_flutter_repo.json \
+  --benchmark-expected=25.0 \
+  --flutter-repo
+set -e
+
+ANALYSIS="{ \"flutter_analyze_flutter_repo\": $(cat $DATA_DIRECTORY/flutter_analyze_flutter_repo.json) }"
+echo $ANALYSIS > $ANALYSIS_FILE
+
 echo "{" > ${BUILD_INFO_FILE}
 echo "\"build_timestamp\": \"$(date)\"" >> ${BUILD_INFO_FILE}
 echo "}" >> ${BUILD_INFO_FILE}
@@ -106,9 +118,11 @@ fi
 
 mv tmp current
 
-$GSUTIL -m rsync -d -R -p $DASHBOARD_DIRECTORY gs://flutter-dashboard
-$GSUTIL -m acl ch -R -g 'google.com:R' gs://flutter-dashboard/current
-$GSUTIL -m acl ch -R -u 'goog.flutter.dashboard@gmail.com:R' gs://flutter-dashboard/current
+if [ -z "${DASHBOARD_NO_UPLOAD:-}" ]; then
+  $GSUTIL -m rsync -d -R -p $DASHBOARD_DIRECTORY gs://flutter-dashboard
+  $GSUTIL -m acl ch -R -g 'google.com:R' gs://flutter-dashboard/current
+  $GSUTIL -m acl ch -R -u 'goog.flutter.dashboard@gmail.com:R' gs://flutter-dashboard/current
+fi
 
 echo "-----------------------------------------"
 echo "Build finished on $(date)"

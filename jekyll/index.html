@@ -6,6 +6,8 @@ layout: default
   Last built: {{ site.data.build['build_timestamp'] }}
 </div>
 
+<!-- perf summaries -->
+
 {% for summary in site.data.summaries %}
 {% if summary[0] != 'blank' %}
 <div class="perf-test-summary-card">
@@ -47,4 +49,22 @@ layout: default
   </div>
 </div>
 {% endif %}
+{% endfor %}
+
+<!-- analysis times -->
+
+{% for analysis in site.data.analysis %}
+<div class="perf-test-summary-card">
+  <h2>{{ analysis[0] }}</h2>
+  <div style="display: flex; flex-direction: row">
+    <div style="min-width: 350px">
+      <span class="metric-section">
+        Analysis time: {{ analysis[1]['time'] | round: 2 }} seconds
+      </span>
+      <span class="metric-section">
+        Target time: {{ analysis[1]['expected'] | round: 2 }} seconds
+      </span>
+    </div>
+  </div>
+</div>
 {% endfor %}
