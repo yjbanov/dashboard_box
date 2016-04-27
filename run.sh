@@ -47,11 +47,12 @@ mkdir -p $DATA_DIRECTORY
 
 cd $ROOT_DIRECTORY
 rm -rf $FLUTTER_DIRECTORY
-git clone https://github.com/flutter/flutter.git
+git clone --depth 1 https://github.com/flutter/flutter.git
 
 export PATH=$(pwd)/flutter/bin:$PATH
 export PATH=$(pwd)/flutter/bin/cache/dart-sdk/bin:$PATH
 
+flutter config --no-analytics
 flutter doctor
 flutter update-packages
 
@@ -94,12 +95,19 @@ echo $SUMMARIES > $SUMMARIES_FILE
 
 set +e
 flutter analyze \
-  --benchmark-out=$DATA_DIRECTORY/flutter_analyze_flutter_repo.json \
-  --benchmark-expected=25.0 \
+  --benchmark-out=$DATA_DIRECTORY/analyze_repo.json \
+  --benchmark-expected=25.00 \
   --flutter-repo
+pushd $FLUTTER_DIRECTORY/examples/material_gallery
+flutter analyze \
+  --benchmark-out=$DATA_DIRECTORY/analysis_server.json \
+  --benchmark-expected=7.50 \
+  --watch
+popd
 set -e
 
-ANALYSIS="{ \"flutter_analyze_flutter_repo\": $(cat $DATA_DIRECTORY/flutter_analyze_flutter_repo.json) }"
+ANALYSIS="{ \"flutter_analyze_flutter_repo\": $(cat $DATA_DIRECTORY/analyze_repo.json), "
+ANALYSIS="${ANALYSIS} \"analysis_server_material_gallery\": $(cat $DATA_DIRECTORY/analysis_server.json) }"
 echo $ANALYSIS > $ANALYSIS_FILE
 
 echo "{" > ${BUILD_INFO_FILE}
