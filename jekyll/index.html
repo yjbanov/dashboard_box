@@ -2,7 +2,7 @@
 layout: default
 ---
 
-<div style="text-align: right">
+<div style="text-align: right" class="perf-details">
   Last built: {{ site.data.build['build_timestamp'] }}
 </div>
 
@@ -55,14 +55,14 @@ layout: default
 
 {% for analysis in site.data.analysis %}
 <div class="perf-test-summary-card">
-  <h2>{{ analysis[0] }}</h2>
+  <h2>{{ analysis[0] }} <span class="perf-details">{{ site.data.build['dart_version'] }}</span></h2>
   <div style="display: flex; flex-direction: row">
     <div style="min-width: 350px">
       <span class="metric-section">
-        Analysis time: {{ analysis[1]['time'] | round: 2 }} seconds
+        Analysis time: {{ analysis[1]['time'] | round: 1 }} seconds
       </span>
       <span class="metric-section">
-        Q2 OKR target: {{ analysis[1]['expected'] | round: 2 }} seconds
+        Q2 OKR target: {{ analysis[1]['expected'] | round: 1 }} seconds
       </span>
     </div>
   </div>

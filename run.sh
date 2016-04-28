@@ -94,15 +94,12 @@ SUMMARIES="${SUMMARIES} \"blank\": {}}"
 echo $SUMMARIES > $SUMMARIES_FILE
 
 set +e
-flutter analyze \
-  --benchmark-out=$DATA_DIRECTORY/analyze_repo.json \
-  --benchmark-expected=25.00 \
-  --flutter-repo
+flutter analyze --flutter-repo --benchmark --benchmark-expected=25.0
+mv analysis_benchmark.json $DATA_DIRECTORY/analyze_repo.json
+
 pushd $FLUTTER_DIRECTORY/examples/material_gallery
-flutter analyze \
-  --benchmark-out=$DATA_DIRECTORY/analysis_server.json \
-  --benchmark-expected=7.50 \
-  --watch
+flutter analyze --watch --benchmark --benchmark-expected=7.5
+mv analysis_benchmark.json $DATA_DIRECTORY/analysis_server.json
 popd
 set -e
 
@@ -111,7 +108,8 @@ ANALYSIS="${ANALYSIS} \"analysis_server_material_gallery\": $(cat $DATA_DIRECTOR
 echo $ANALYSIS > $ANALYSIS_FILE
 
 echo "{" > ${BUILD_INFO_FILE}
-echo "\"build_timestamp\": \"$(date)\"" >> ${BUILD_INFO_FILE}
+echo "\"build_timestamp\": \"$(date)\"," >> ${BUILD_INFO_FILE}
+echo "\"dart_version\": '$(dart --version 2>&1)'" >> ${BUILD_INFO_FILE}
 echo "}" >> ${BUILD_INFO_FILE}
 
 if [[ -d tmp ]]; then
