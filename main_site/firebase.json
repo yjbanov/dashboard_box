@@ -1,0 +1,9 @@
+{
+  "firebase": "purple-butterfly-3000",
+  "public": "public",
+  "ignore": [
+    "firebase.json",
+    "**/.*",
+    "**/node_modules/**"
+  ]
+}

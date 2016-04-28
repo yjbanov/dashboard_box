@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Flutter Dashboard</title>
+  <link href='http://fonts.googleapis.com/css?family=Roboto:300' rel='stylesheet' type='text/css'>
+  <style>
+body {
+  background: #eee;
+  font: 18px Roboto, sans-serif;
+  color: #333;
+}
+
+#container {  
+  margin: 20px;
+  display: flex;
+  flex-flow: row wrap;
+  justify-content: space-around;
+  align-content: space-around;
+}
+
+.card {
+  margin: 10px;
+  width: 450px;
+  background: #f7f7f7;
+  padding: 20px;
+}
+
+h3 {
+  text-align: center;
+  margin: 0;
+  margin-bottom: 1em;
+  font-size: 1.5em;
+}
+  </style>
+
+</head>
+<body>
+
+<div id="container">
+  <div class="card">
+    <h3>7DA: <span id="num-7da"></span></h3>
+    <section id="timeline"></section>
+  </div>
+
+  <div class="card">
+    <h3>Frobs per minutes</h3>
+    <section></section>
+  </div>
+
+  <div class="card">
+    <h3>Complex layout: 5 missed</h3>
+    <section></section>
+  </div>
+
+  <div class="card">
+    <h3>Stocks Scroll: 2 missed</h3>
+    <section></section>
+  </div>
+
+  <div class="card">
+    <h3>Analysis time: 30% to goal</h3>
+    <section></section>
+  </div>
+</div>
+
+
+
+<script>
+(function(w,d,s,g,js,fjs){
+  g=w.gapi||(w.gapi={});g.analytics={q:[],ready:function(cb){this.q.push(cb)}};
+  js=d.createElement(s);fjs=d.getElementsByTagName(s)[0];
+  js.src='https://apis.google.com/js/platform.js';
+  fjs.parentNode.insertBefore(js,fjs);js.onload=function(){g.load('analytics')};
+}(window,document,'script'));
+</script>
+
+<script>
+gapi.analytics.ready(function() {
+
+  var CLIENT_ID = '308150028417-ftb1c29on9s56ans77e1ani24a8b6m10.apps.googleusercontent.com';
+
+  gapi.analytics.auth.authorize({
+    container: 'auth-button',
+    clientid: CLIENT_ID,
+  });
+
+  var viewSelector = new gapi.analytics.ViewSelector({
+    container: 'view-selector'
+  });
+
+  var timeline = new gapi.analytics.googleCharts.DataChart({
+    reportType: 'ga',
+    query: {
+      'dimensions': 'ga:date',
+      'metrics': 'ga:7dayUsers',
+      'start-date': '30daysAgo',
+      'end-date': 'yesterday',
+      'ids': 'ga:120928408'
+    },
+    chart: {
+      type: 'LINE',
+      container: 'timeline'
+    }
+  });
+
+  timeline.on('success', function(response) {
+  	var rows = response.data.rows;
+  	var lastActiveUserCount = rows[rows.length-1]['c'][1]['v'];
+  	document.getElementById('num-7da').innerHTML = lastActiveUserCount;
+  });
+
+  timeline.execute();
+
+});
+</script>
+
+<section id="auth-button"></section>
+</body>
+</html>
