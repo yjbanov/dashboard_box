@@ -106,17 +106,24 @@ SUMMARIES="${SUMMARIES} \"blank\": {}}"
 echo $SUMMARIES > $SUMMARIES_FILE
 
 set +e
+
+# Analyze the repo.
 flutter analyze --flutter-repo --benchmark --benchmark-expected=25.0
 mv analysis_benchmark.json $DATA_DIRECTORY/analyze_repo.json
 
-pushd $FLUTTER_DIRECTORY/examples/material_gallery
-flutter analyze --watch --benchmark --benchmark-expected=7.5
+# Generate a large sample app.
+dart dev/tools/mega_gallery.dart
+
+# Analyze it.
+pushd $FLUTTER_DIRECTORY/dev/benchmarks/mega_gallery
+flutter analyze --watch --benchmark --benchmark-expected=10.0
 mv analysis_benchmark.json $DATA_DIRECTORY/analysis_server.json
 popd
+
 set -e
 
 ANALYSIS="{ \"flutter_analyze_flutter_repo\": $(cat $DATA_DIRECTORY/analyze_repo.json), "
-ANALYSIS="${ANALYSIS} \"analysis_server_material_gallery\": $(cat $DATA_DIRECTORY/analysis_server.json) }"
+ANALYSIS="${ANALYSIS} \"analysis_server_mega_gallery\": $(cat $DATA_DIRECTORY/analysis_server.json) }"
 echo $ANALYSIS > $ANALYSIS_FILE
 
 echo "{" > ${BUILD_INFO_FILE}
