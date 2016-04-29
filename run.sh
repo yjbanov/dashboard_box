@@ -71,9 +71,21 @@ function runTest {
   cp build/*.timeline_summary.json $DATA_DIRECTORY
 }
 
+function runStartupTest {
+  TEST_DIRECTORY=$1
+  TEST_NAME=$2
+
+  cd $TEST_DIRECTORY
+  pub get 1>&2
+  flutter run --verbose --no-checked --trace-startup --device-id=$ANDROID_DEVICE_ID
+  cp build/start_up_info.json $DATA_DIRECTORY/${TEST_NAME}_start_up_info.json
+}
+
 runTest $FLUTTER_DIRECTORY/examples/stocks test_driver/scroll_perf.dart
 runTest $FLUTTER_DIRECTORY/dev/benchmarks/complex_layout test_driver/scroll_perf.dart
 
+runStartupTest $FLUTTER_DIRECTORY/examples/stocks stocks
+runStartupTest $FLUTTER_DIRECTORY/dev/benchmarks/complex_layout complex_layout
 
 # --------------------------
 # Generate dashboard

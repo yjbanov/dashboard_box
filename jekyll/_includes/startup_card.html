@@ -1,0 +1,17 @@
+{% if include.data.timeToFirstFrameMicros > 200000 %}
+  {% assign warningClass = 'warning' %}
+{% endif %}
+
+<div class="perf-test-summary-card">
+  <h2>{{include.name}} startup</h2>
+  <div style="display: flex; flex-direction: row">
+    <div style="min-width: 150px">
+      <div class="metric-section">
+        {{ include.data.timeToFrameworkInitMicros | divided_by: 1000 }} ms to framework
+      </div>
+      <div class="metric-section {{ warningClass }}" style="font-weight: bold">
+        {{ include.data.timeToFirstFrameMicros | divided_by: 1000 }} ms to first frame
+      </div>
+    </div>
+  </div>
+</div>

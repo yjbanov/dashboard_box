@@ -7,6 +7,10 @@ $page-padding: 20px;
 $primary-bg-color: #917FFF;
 $accent-color: #64FFDA;
 
+$success-color: #468263; /* greenish */
+$failure-color: #FF2222; /* redish */
+$critical-failure-color: #910000; /* burgundyish */
+
 * {
   box-sizing: border-box;
 }
@@ -104,11 +108,17 @@ span.metric-section + span.metric-section {
 }
 
 .warning {
-  color: red;
+  font-weight: 400;
+  color: $failure-color;
 }
 
 .congrats {
-  color: green;
+  color: $success-color;
+}
+
+.row {
+  display: flex;
+  flex-direction: row;
 }
 
 .frames {
@@ -152,13 +162,13 @@ span.metric-section + span.metric-section {
 }
 
 .good-frame {
-  @include frame(green);
+  @include frame($success-color);
 }
 
 .bad-frame {
-  @include frame(#FF2222);
+  @include frame($failure-color);
 }
 
 .terrible-frame {
-  @include frame(#CC2222);
+  @include frame($critical-failure-color);
 }

@@ -6,50 +6,60 @@ layout: default
   Last built: {{ site.data.build['build_timestamp'] }}
 </div>
 
-<!-- perf summaries -->
+<div class="row">
+  <div style="flex-grow: 2">
+    <!-- perf summaries -->
 
-{% for summary in site.data.summaries %}
-{% if summary[0] != 'blank' %}
-<div class="perf-test-summary-card">
-  <h2>{{ summary[0] }}</h2>
-  <div style="display: flex; flex-direction: row">
+    {% for summary in site.data.summaries %}
+    {% if summary[0] != 'blank' %}
+    <div class="perf-test-summary-card">
+      <h2>{{ summary[0] }}</h2>
+      <div style="display: flex; flex-direction: row">
 
-    <!-- This box that contains aggregate numbers and declares success/failure -->
-    <div style="min-width: 350px">
-      <div class="metric-section">
-        Avg. build time: {{ summary[1]['average_frame_build_time_millis'] | round: 2 }} ms
-      </div>
-      <div class="metric-section">
-{% if summary[1]['missed_frame_build_budget_count'] > 0 %}
-        <span class="warning metric">{{ summary[1]['missed_frame_build_budget_count'] }}</span>
-        out of
-        <span class="metric">{{ summary[1]['frame_count'] }}</span>
-        frames missed
-{% else %}
-        <span class="congrats">All <span class="metric">{{ summary[1]['frame_count'] }}</span> frames ✓</span>
-{% endif %}
+        <!-- This box that contains aggregate numbers and declares success/failure -->
+        <div style="min-width: 150px">
+          <div class="metric-section">
+            {{ summary[1]['average_frame_build_time_millis'] | round: 2 }} ms avg
+          </div>
+          <div class="metric-section">
+            {{ summary[1]['frame_count'] }} frames
+          </div>
+          <div class="metric-section">
+    {% if summary[1]['missed_frame_build_budget_count'] > 0 %}
+            <span class="warning metric">{{ summary[1]['missed_frame_build_budget_count'] }}</span>
+            missed
+    {% endif %}
+          </div>
+        </div>
+
+        <!-- This box contains build times of individual frames -->
+        <div class="frames" style="height: {{ 24000 | divided_by: 200 }}px">
+          <div class="frame-budget-indicator" style="height: {{ 8000 | divided_by: 200 }}px">8ms</div>
+          <div class="frame-60FPS-indicator" style="height: {{ 16000 | divided_by: 200 }}px">16ms</div>
+    {% for frameBuildTime in summary[1]['frame_build_times'] %}
+    {% if frameBuildTime > 24000 %}
+          <div class="terrible-frame" style="height: {{ 24000 | divided_by: 200 }}px"></div>
+    {% elsif frameBuildTime > 8000 %}
+          <div class="bad-frame" style="height: {{ frameBuildTime | divided_by: 200 }}px"></div>
+    {% else %}
+          <div class="good-frame" style="height: {{ frameBuildTime | divided_by: 200 }}px"></div>
+    {% endif %}
+    {% endfor %}
+        </div>
+
       </div>
     </div>
+    {% endif %}
+    {% endfor %}
+  </div>
 
-    <!-- This box contains build times of individual frames -->
-    <div class="frames" style="height: {{ 24000 | divided_by: 200 }}px">
-      <div class="frame-budget-indicator" style="height: {{ 8000 | divided_by: 200 }}px">8ms</div>
-      <div class="frame-60FPS-indicator" style="height: {{ 16000 | divided_by: 200 }}px">16ms</div>
-{% for frameBuildTime in summary[1]['frame_build_times'] %}
-{% if frameBuildTime > 24000 %}
-      <div class="terrible-frame" style="height: {{ 24000 | divided_by: 200 }}px"></div>
-{% elsif frameBuildTime > 8000 %}
-      <div class="bad-frame" style="height: {{ frameBuildTime | divided_by: 200 }}px"></div>
-{% else %}
-      <div class="good-frame" style="height: {{ frameBuildTime | divided_by: 200 }}px"></div>
-{% endif %}
-{% endfor %}
-    </div>
+  <div style="flex-grow: 1; margin-left: 20px;">
+    <!-- startup times -->
 
+    {% include startup_card.html name="Complex layout" data=site.data.complex_layout_start_up_info %}
+    {% include startup_card.html name="Stocks" data=site.data.stocks_start_up_info %}
   </div>
 </div>
-{% endif %}
-{% endfor %}
 
 <!-- analysis times -->
 
