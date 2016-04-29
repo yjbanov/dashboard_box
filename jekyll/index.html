@@ -19,7 +19,13 @@ layout: default
         <!-- This box that contains aggregate numbers and declares success/failure -->
         <div style="min-width: 150px">
           <div class="metric-section">
-            {{ summary[1]['average_frame_build_time_millis'] | round: 2 }} ms avg
+    {% if summary[1]['worst_frame_build_time_millis'] > 15 %}
+            <span class="warning metric">
+    {% else %}
+            <span>
+    {% endif %}
+            {{ summary[1]['worst_frame_build_time_millis'] | round: 1 }} ms (max)
+            </span>
           </div>
           <div class="metric-section">
             {{ summary[1]['frame_count'] }} frames
