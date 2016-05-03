@@ -6,15 +6,22 @@ function absolute_path {
   [[ $1 = /* ]] && echo "$1" || echo "$(pwd)/${1#./}"
 }
 
+function check_env_var {
+  NAME=$1
+  VALUE=$2
+  if [[ -z "${VALUE}" ]]; then
+    echo "${NAME} environment variable is missing."
+    echo "Quitting."
+    exit 1
+  fi
+}
+
 echo "-----------------------------------------"
 echo "Build started on $(date)"
 echo "-----------------------------------------"
 
-# The ID of the Android device used for performance testing, can be overridden
-# externally
-export ANDROID_DEVICE_ID=${ANDROID_DEVICE_ID:-"AG860440G62GIGC"}
-
-ROOT_DIRECTORY=$(absolute_path "$(dirname $(dirname $0))")
+PARENT_DIRECTORY=$(dirname $(absolute_path "$0"))
+ROOT_DIRECTORY=$(dirname "${PARENT_DIRECTORY}")
 DASHBOARD_DIRECTORY="$ROOT_DIRECTORY/dashboard"
 JEKYLL_DIRECTORY="$ROOT_DIRECTORY/dashboard_box/jekyll"
 JEKYLL_BIN=${JEKYLL_BIN:-"/usr/local/bin/jekyll"}
@@ -22,6 +29,28 @@ DATA_DIRECTORY="$JEKYLL_DIRECTORY/_data"
 FLUTTER_DIRECTORY="$ROOT_DIRECTORY/flutter"
 SCRIPTS_DIRECTORY="$ROOT_DIRECTORY/dashboard_box"
 GSUTIL=${GSUTIL:-"/Users/$USER/google-cloud-sdk/bin/gsutil"}
+
+# The following config file must export the following variables:
+#
+# ANDROID_DEVICE_ID - the ID of the Android device used for performance testing,
+#     can be overridden externally
+# FIREBASE_FLUTTER_DASHBOARD_TOKEN - authentication token to Firebase used to
+#     upload metrics
+#
+# Example:
+#
+# export ANDROID_DEVICE_ID=...
+# export FIREBASE_FLUTTER_DASHBOARD_TOKEN=...
+if [ ! -f "${PARENT_DIRECTORY}/config.sh" ]; then
+  echo "Config file missing: ${PARENT_DIRECTORY}/config.sh"
+  echo "Quitting."
+  exit 1
+fi
+
+source "${PARENT_DIRECTORY}/config.sh"
+
+check_env_var "ANDROID_DEVICE_ID" $ANDROID_DEVICE_ID
+check_env_var "FIREBASE_FLUTTER_DASHBOARD_TOKEN" $FIREBASE_FLUTTER_DASHBOARD_TOKEN
 
 BUILD_INFO_FILE="$DATA_DIRECTORY/build.json"
 
@@ -149,7 +178,7 @@ fi
 
 mv tmp current
 
-if [ -z "${DASHBOARD_NO_UPLOAD:-}" ]; then
+if [[ "$UPLOAD_DASHBOARD_DATA" == "yes" ]]; then
   $GSUTIL -m rsync -d -R -p $DASHBOARD_DIRECTORY gs://flutter-dashboard
   $GSUTIL -m acl ch -R -g 'google.com:R' gs://flutter-dashboard/current
   $GSUTIL -m acl ch -R -u 'goog.flutter.dashboard@gmail.com:R' gs://flutter-dashboard/current

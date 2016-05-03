@@ -6,6 +6,12 @@
     <key>Label</key>
     <string>io.flutter.dashboard</string>
 
+    <key>EnvironmentVariables</key>
+    <dict>
+      <key>UPLOAD_DASHBOARD_DATA</key>
+      <string>yes</string>
+    </dict>
+
     <key>ProgramArguments</key>
     <array>
       <string>/bin/sh</string>
