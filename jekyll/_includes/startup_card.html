@@ -9,8 +9,11 @@
       <div class="metric-section">
         {{ include.data.timeToFrameworkInitMicros | divided_by: 1000 }} ms to framework
       </div>
+      <div class="metric-section">
+        +{{ (include.data.timeAfterFrameworkInitMicros) | divided_by: 1000 }} ms to first frame
+      </div>
       <div class="metric-section {{ warningClass }}" style="font-weight: bold">
-        +{{ (include.data.timeToFirstFrameMicros - include.data.timeToFrameworkInitMicros) | divided_by: 1000 }} ms to first frame
+        {{ include.data.timeToFirstFrameMicros | divided_by: 1000 }} ms total
       </div>
     </div>
   </div>
