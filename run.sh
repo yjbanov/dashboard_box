@@ -183,9 +183,7 @@ if [[ "$UPLOAD_DASHBOARD_DATA" == "yes" ]]; then
   $GSUTIL -m acl ch -R -g 'google.com:R' gs://flutter-dashboard/current
   $GSUTIL -m acl ch -R -u 'goog.flutter.dashboard@gmail.com:R' gs://flutter-dashboard/current
 
-  cd src/firebase_uploader
-  pub get
-  cd ../..
+  (cd ${ROOT_DIRECTORY}/dashboard_box/src/firebase_uploader; pub get)
 
   set +e
 
