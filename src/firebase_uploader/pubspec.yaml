@@ -1,0 +1,5 @@
+name: firebase_uploader_for_dashboard
+version: 0.0.1
+dependencies:
+  firebase_rest: 0.1.3
+  path: any

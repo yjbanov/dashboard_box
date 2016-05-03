@@ -24,6 +24,8 @@ SCRIPTS_DIRECTORY="$ROOT_DIRECTORY/dashboard_box"
 GSUTIL=${GSUTIL:-"/Users/$USER/google-cloud-sdk/bin/gsutil"}
 
 BUILD_INFO_FILE="$DATA_DIRECTORY/build.json"
+
+# TODO: remove these when we move over to Firebase for dashboard
 SUMMARIES_FILE="$DATA_DIRECTORY/summaries.json"
 ANALYSIS_FILE="$DATA_DIRECTORY/analysis.json"
 
@@ -64,11 +66,12 @@ flutter update-packages
 function runTest {
   TEST_DIRECTORY=$1
   TEST_TARGET=$2
+  TEST_NAME=$3
 
   cd $TEST_DIRECTORY
   pub get 1>&2
   flutter drive --verbose --no-checked --target=$TEST_TARGET --device-id=$ANDROID_DEVICE_ID
-  cp build/*.timeline_summary.json $DATA_DIRECTORY
+  cp build/${TEST_NAME}.timeline_summary.json $DATA_DIRECTORY/${TEST_NAME}__timeline_summary.json
 }
 
 function runStartupTest {
@@ -78,11 +81,11 @@ function runStartupTest {
   cd $TEST_DIRECTORY
   pub get 1>&2
   flutter run --verbose --no-checked --trace-startup --device-id=$ANDROID_DEVICE_ID
-  cp build/start_up_info.json $DATA_DIRECTORY/${TEST_NAME}_start_up_info.json
+  cp build/start_up_info.json $DATA_DIRECTORY/${TEST_NAME}__start_up.json
 }
 
-runTest $FLUTTER_DIRECTORY/examples/stocks test_driver/scroll_perf.dart
-runTest $FLUTTER_DIRECTORY/dev/benchmarks/complex_layout test_driver/scroll_perf.dart
+runTest $FLUTTER_DIRECTORY/examples/stocks test_driver/scroll_perf.dart stocks_scroll_perf
+runTest $FLUTTER_DIRECTORY/dev/benchmarks/complex_layout test_driver/scroll_perf.dart complex_layout_scroll_perf
 
 runStartupTest $FLUTTER_DIRECTORY/examples/stocks stocks
 runStartupTest $FLUTTER_DIRECTORY/dev/benchmarks/complex_layout complex_layout
@@ -95,9 +98,8 @@ mkdir -p $DASHBOARD_DIRECTORY
 cd $DASHBOARD_DIRECTORY
 
 SUMMARIES="{"
-for jsonFile in $(ls $DATA_DIRECTORY/*.timeline_summary.json); do
+for jsonFile in $(ls $DATA_DIRECTORY/*__timeline_summary.json); do
   NAME="${jsonFile%.*}"
-  NAME="${NAME%.*}"
   SUMMARIES="${SUMMARIES} \"$(basename $NAME)\": "
   SUMMARIES="${SUMMARIES} $(cat $jsonFile)"
   SUMMARIES="${SUMMARIES},"
@@ -105,11 +107,13 @@ done
 SUMMARIES="${SUMMARIES} \"blank\": {}}"
 echo $SUMMARIES > $SUMMARIES_FILE
 
+# Expecting mega to fail here. Will fix soon.
+
 set +e
 
 # Analyze the repo.
 flutter analyze --flutter-repo --benchmark --benchmark-expected=25.0
-mv analysis_benchmark.json $DATA_DIRECTORY/analyze_repo.json
+mv analysis_benchmark.json $DATA_DIRECTORY/analyzer_cli__analysis_time.json
 
 # Generate a large sample app.
 dart dev/tools/mega_gallery.dart
@@ -117,18 +121,20 @@ dart dev/tools/mega_gallery.dart
 # Analyze it.
 pushd $FLUTTER_DIRECTORY/dev/benchmarks/mega_gallery
 flutter analyze --watch --benchmark --benchmark-expected=10.0
-mv analysis_benchmark.json $DATA_DIRECTORY/analysis_server.json
+mv analysis_benchmark.json $DATA_DIRECTORY/analyzer_server__analysis_time.json
 popd
+
+# No longer expecting anything to fail from here on out.
 
 set -e
 
-ANALYSIS="{ \"flutter_analyze_flutter_repo\": $(cat $DATA_DIRECTORY/analyze_repo.json), "
-ANALYSIS="${ANALYSIS} \"analysis_server_mega_gallery\": $(cat $DATA_DIRECTORY/analysis_server.json) }"
+ANALYSIS="{ \"flutter_analyze_flutter_repo\": $(cat $DATA_DIRECTORY/analyzer_cli__analysis_time.json), "
+ANALYSIS="${ANALYSIS} \"analysis_server_mega_gallery\": $(cat $DATA_DIRECTORY/analyzer_server__analysis_time.json) }"
 echo $ANALYSIS > $ANALYSIS_FILE
 
 echo "{" > ${BUILD_INFO_FILE}
 echo "\"build_timestamp\": \"$(date)\"," >> ${BUILD_INFO_FILE}
-echo "\"dart_version\": '$(dart --version 2>&1)'" >> ${BUILD_INFO_FILE}
+echo "\"dart_version\": \"$(dart --version 2>&1 | sed "s/\"/'/g")\"" >> ${BUILD_INFO_FILE}
 echo "}" >> ${BUILD_INFO_FILE}
 
 if [[ -d tmp ]]; then
@@ -147,6 +153,20 @@ if [ -z "${DASHBOARD_NO_UPLOAD:-}" ]; then
   $GSUTIL -m rsync -d -R -p $DASHBOARD_DIRECTORY gs://flutter-dashboard
   $GSUTIL -m acl ch -R -g 'google.com:R' gs://flutter-dashboard/current
   $GSUTIL -m acl ch -R -u 'goog.flutter.dashboard@gmail.com:R' gs://flutter-dashboard/current
+
+  cd src/firebase_uploader
+  pub get
+  cd ../..
+
+  set +e
+
+  shopt -s nullglob
+  for f in $DATA_DIRECTORY/*.json ; do
+    echo "Uploading $f to Firebase"
+    dart ${ROOT_DIRECTORY}/dashboard_box/src/firebase_uploader/bin/uploader.dart $f
+  done
+
+  set -e
 fi
 
 echo "-----------------------------------------"

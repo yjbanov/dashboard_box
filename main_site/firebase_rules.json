@@ -1,0 +1,12 @@
+{
+  "rules": {
+  	".read": "auth.provider === 'google' && root.child('authorized_users').child(auth.uid).exists()",
+    ".write": "auth.provider === 'google' && root.child('authorized_users').child(auth.uid).exists()",
+
+  	"users": {
+  	  "$user_id": {
+        ".write": "auth.provider === 'google' && $user_id === auth.uid"
+      }
+  	}
+  }
+}

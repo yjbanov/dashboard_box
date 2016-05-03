@@ -1,6 +1,7 @@
 {
   "firebase": "purple-butterfly-3000",
   "public": "public",
+  "rules": "firebase_rules.json",
   "ignore": [
     "firebase.json",
     "**/.*",
