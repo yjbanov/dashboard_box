@@ -19,21 +19,23 @@ layout: default
         <!-- This box that contains aggregate numbers and declares success/failure -->
         <div style="min-width: 150px">
           <div class="metric-section">
+            {{ summary[1]['average_frame_build_time_millis'] | round: 2 }} ms avg
+          </div>
+          <div class="metric-section">
     {% if summary[1]['worst_frame_build_time_millis'] > 15 %}
             <span class="warning metric">
     {% else %}
             <span>
     {% endif %}
-            {{ summary[1]['worst_frame_build_time_millis'] | round: 1 }} ms (max)
+            {{ summary[1]['worst_frame_build_time_millis'] | round: 1 }} ms max
             </span>
-          </div>
-          <div class="metric-section">
-            {{ summary[1]['frame_count'] }} frames
           </div>
           <div class="metric-section">
     {% if summary[1]['missed_frame_build_budget_count'] > 0 %}
             <span class="warning metric">{{ summary[1]['missed_frame_build_budget_count'] }}</span>
-            missed
+            missed (of {{ summary[1]['frame_count'] }})
+    {% else %}
+            {{ summary[1]['frame_count'] }} frames
     {% endif %}
           </div>
         </div>
