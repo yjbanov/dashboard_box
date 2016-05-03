@@ -191,7 +191,9 @@ if [[ "$UPLOAD_DASHBOARD_DATA" == "yes" ]]; then
 
   shopt -s nullglob
   for f in $DATA_DIRECTORY/*.json ; do
-    echo "Uploading $f to Firebase"
+    if [[ ( "$f" == *analysis.json ) || ( "$f" == *summaries.json )]] ; then
+      continue
+    fi
     dart ${ROOT_DIRECTORY}/dashboard_box/src/firebase_uploader/bin/uploader.dart $f
   done
 
