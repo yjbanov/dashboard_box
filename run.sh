@@ -145,7 +145,7 @@ flutter analyze --flutter-repo --benchmark --benchmark-expected=25.0
 mv analysis_benchmark.json $DATA_DIRECTORY/analyzer_cli__analysis_time.json
 
 # Generate a large sample app.
-dart dev/tools/mega_gallery.dart
+(cd $FLUTTER_DIRECTORY; dart dev/tools/mega_gallery.dart)
 
 # Analyze it.
 pushd $FLUTTER_DIRECTORY/dev/benchmarks/mega_gallery
