@@ -1,0 +1,133 @@
+body {
+  background: #eee;
+  font: 18px Roboto, sans-serif;
+  color: #333;
+  padding-bottom: 48px;
+  margin: 0;
+}
+
+#container {
+  display: flex;
+  flex-flow: row wrap;
+}
+
+.last-updated {
+  font-size: 12px;
+}
+
+.card {
+  margin: 10px;
+  width: 400px;
+  background: #f7f7f7;
+  padding: 20px;
+  border-radius: 4px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24);
+  text-align: center;
+
+  /* center the inside contents */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.card .metric-data {
+  font-size: 120px;
+  margin-bottom: 28px;
+}
+
+.card .metric-type {
+  font-size: 48px;
+  margin-bottom: 28px;
+}
+
+.card .metric-name-wrapper {
+  color: rgba(0, 0, 0, 0.54);
+}
+
+.card .metric-unit {
+  color: rgba(0, 0, 0, 0.54);
+  font-size: 72px;
+}
+
+.footer {
+  position:fixed;
+  bottom:0;
+}
+
+h3 {
+  text-align: center;
+  margin: 0;
+  margin-bottom: 1em;
+  font-size: 1.5em;
+}
+
+.metric-section {
+  margin-top: 10px;
+  margin-bottom: 10px;
+}
+
+span.metric-section + span.metric-section {
+  padding-left: 30px; }
+
+.metric {
+  font-weight: 300; }
+
+.warning {
+  font-weight: 400;
+  color: #FF2222; }
+
+.congrats {
+  color: #468263; }
+
+.row {
+  display: flex;
+  flex-direction: row; }
+
+.frames {
+  display: flex;
+  position: relative;
+  flex-direction: row;
+  align-items: flex-end;
+  width: 100%;
+  border: 1px solid #81C784; }
+
+.frame-budget-indicator {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  border-top: 1px dashed #81C784;
+  text-align: right;
+  font-size: 70%;
+  padding-right: 5px;
+  padding-top: 2px;
+  background-color: #E8F5E9;
+  z-index: 1; }
+
+.frame-60FPS-indicator {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  border-top: 1px dashed #81C784;
+  text-align: right;
+  font-size: 70%;
+  padding-right: 5px;
+  padding-top: 2px;
+  background-color: #F9FBE7;
+  z-index: 0; }
+
+.good-frame {
+  width: 1px;
+  z-index: 2;
+  background-color: #468263; }
+
+.bad-frame {
+  width: 1px;
+  z-index: 2;
+  background-color: #FF2222; }
+
+.terrible-frame {
+  width: 1px;
+  z-index: 2;
+  background-color: #910000; }

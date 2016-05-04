@@ -3,35 +3,7 @@
 <head>
   <title>Flutter Dashboard</title>
   <link href='https://fonts.googleapis.com/css?family=Roboto:300' rel='stylesheet' type='text/css'>
-  <style>
-    body {
-      background: #eee;
-      font: 18px Roboto, sans-serif;
-      color: #333;
-    }
-
-    #container {  
-      margin: 20px;
-      display: flex;
-      flex-flow: row wrap;
-      justify-content: space-around;
-      align-content: space-around;
-    }
-
-    .card {
-      margin: 10px;
-      width: 450px;
-      background: #f7f7f7;
-      padding: 20px;
-    }
-
-    h3 {
-      text-align: center;
-      margin: 0;
-      margin-bottom: 1em;
-      font-size: 1.5em;
-    }
-  </style>
+  <link href="styles.css" rel="stylesheet">
 
   <script src="https://cdn.firebase.com/js/client/2.4.2/firebase.js"></script>
 
@@ -45,143 +17,96 @@
   </script>
 </head>
 <body>
+  <div id="container">
+    <!-- Unable to authenticate to analytics data from our dashboard user
+    <div class="card">
+      <div class="card-inside">
+        <div class="metric-type">7DA <span class="metric-name-wrapper">(<span class="metric-name">flutter tool</span>)</span></div>
+        <div class="metric-data"><span class="metric-number"><span id="num-7da"></span></span></div>
+        <div id="7da-timeline" class="metric-chart"></div>
+      </div>
+    </div>
+    -->
 
-<div id="container">
-  <div class="card">
-    <h3>7DA: <span id="num-7da"></span></h3>
-    <section id="timeline"></section>
+    <div class="card" id="github_issues">
+      <div class="card-inside">
+        <div class="metric-type">Open issues <span class="metric-name-wrapper">(<span class="metric-name">Gallery</span>)</span></div>
+        <div class="metric-data"><span class="metric-number"></span></div>
+        <div class="days-away"><span class="days-away-number"></span> days away</div>
+      </div>
+    </div>
   </div>
-</div>
 
-<section id="auth-button"></section>
-<button id="firebase-login">Firebase Login</button>
-<button id="firebase-logout">Firebase Logout</button>
+  <div class="footer">
 
-<script>
-gapi.analytics.ready(function() {
+    <section id="auth-button"></section>
+    <button id="firebase-login">Firebase Login</button>
+    <button id="firebase-logout">Firebase Logout</button>
+    <span class="last-updated">Last updated from Firebase: <span id="firebase-last-updated-time"></span></span>
+    <span class="last-updated">Last updated from Github: <span id="github-last-updated-time"></span></span>
 
-  var CLIENT_ID = '308150028417-ftb1c29on9s56ans77e1ani24a8b6m10.apps.googleusercontent.com';
-
-  gapi.analytics.auth.authorize({
-    container: 'auth-button',
-    clientid: CLIENT_ID,
-  });
-
-  var viewSelector = new gapi.analytics.ViewSelector({
-    container: 'view-selector'
-  });
-
-  var timeline = new gapi.analytics.googleCharts.DataChart({
-    reportType: 'ga',
-    query: {
-      'dimensions': 'ga:date',
-      'metrics': 'ga:7dayUsers',
-      'start-date': '30daysAgo',
-      'end-date': 'yesterday',
-      'ids': 'ga:120928408'
-    },
-    chart: {
-      type: 'LINE',
-      container: 'timeline'
-    }
-  });
-
-  timeline.on('success', function(response) {
-    var rows = response.data.rows;
-    var lastActiveUserCount = rows[rows.length-1]['c'][1]['v'];
-    document.getElementById('num-7da').innerHTML = lastActiveUserCount;
-  });
-
-  timeline.execute();
-
-});
-</script>
-
-<template id="flutter_analyze_flutter_repo_tmpl">
-  <div class="card">
-    <h3 class="title">Analyze Repo: <span class="percent"></span>% within goal</h3>
-    <section class="content">
-      <div>Current time: <span class="current_time"></span> sec</div>
-      <div>Target time: <span class="target_time"></span> sec</div>
-    </section>
   </div>
-</template>
 
-<script>
-var ref = new Firebase("https://purple-butterfly-3000.firebaseio.com/");
-ref.onAuth(authDataCallback);
+  <template id="__analysis_time_tmpl">
+    <div class="card analysis_time from-firebase">
+      <div class="card-inside">
+        <div class="metric-type">Analysis time <span class="metric-name-wrapper">(<span class="metric-name"></span>)</span></div>
+        <div class="metric-data"><span class="metric-number"></span><span class="metric-unit">s</span></div>
+        <div>Q2 goal: <span class="metric-target"></span>s</div>
+      </div>
+    </div>
+  </template>
 
-function authDataCallback(authData) {
-  if (authData) {
-    console.log("User " + authData.uid + " is logged in with " +
-      authData.provider + " and has displayName '" +
-      authData.google.displayName + "' and email " + authData.google.email);
-    // save the user's profile into the database so we can
-    // use them in Security and Firebase Rules
-    ref.child("users").child(authData.uid).set({
-      provider: authData.provider,
-      name: authData.google.displayName,
-      email: authData.google.email || 'undefined'
-    }).then(function(snapshot) {
-      getData();
-    }, function(error) {
-      console.error(error);
-    });
-  } else {
-    console.log("User is logged out");
-  }
-}
+  <template id="__start_up_tmpl">
+    <div class="card start_up from-firebase">
+      <div class="card-inside">
+        <div class="metric-type">Time to first frame <span class="metric-name-wrapper">(<span class="metric-name"></span>)</span></div>
+        <div class="metric-data"><span class="metric-number"></span><span class="metric-unit">ms</span></div>
 
-function authHandler(error, authData) {
-  if (error) {
-    console.log("Login Failed!", error);
-  } else {
-    console.log("Authenticated successfully with payload:", authData);
-  }
-}
+        <div>
+          To framework init: <span class="time-to-framework-init"></span>ms
+        </div>
+        <div>
+          After framework init: <span class="time-after-init-to-first-frame"></span>ms
+        </div>
 
-function getData() {
-  ref.child('measurements').on("value", function(snapshot) {
-    console.log(snapshot.val());
-    generateBoxes(snapshot.val());
-  }, function (errorObject) {
-    console.log("The read failed: " + errorObject.code);
-  });
-}
+        <div>Q2 goal: <span class="metric-target">600</span>ms</div>
 
-var generators = {
-  'flutter_analyze_flutter_repo': function(key, data) {
-    var tmpl = document.querySelector('#' + key + '_tmpl');
-    var clone = document.importNode(tmpl.content, true);
-    clone.querySelector('.percent').textContent = Math.round((data['Target Time'] / data['Analysis Time']) * 100);
-    clone.querySelector('.current_time').textContent = data['Analysis Time'];
-    clone.querySelector('.target_time').textContent = data['Target Time'];
-    return document.querySelector('#container').appendChild(clone);
-  }
-};
+      </div>
+    </div>
+  </template>
 
-function generateBoxes(measurements) {
-  for (var key in measurements) {
-    if (measurements.hasOwnProperty(key)) {
-      var generator = generators[key];
-      if (generator === undefined) {
-        console.error('Did not find generator for ' + key);
-        continue;
-      }
-      generator(key, measurements[key]);
-    }
-  }
-}
+  <template id="__timeline_summary_tmpl">
+    <div class="card timeline_summary from-firebase">
+      <div class="card-inside">
+        <div class="perf-test-summary-card">
+        <div class="metric-type"><span class="title"></span></div>
+          <div class="metric-data"><span class="metric-number"></span><span class="metric-unit"> missed</span></div>
+          <!-- This box that contains aggregate numbers and declares success/failure -->
+          <div style="min-width: 150px">
+            <div class="metric-section">
+              <span class="average_frame_build_time_millis"></span> ms avg,
+              <span class="frame_count"></span> frames,
+            </div>
+          </div>
+          <div style="display: flex; flex-direction: row">
+            <!-- This box contains build times of individual frames -->
+            <div class="frames" style="height: 120px">
+              <div class="frame-budget-indicator" style="height: 40px">8ms</div>
+              <div class="frame-60FPS-indicator" style="height: 80px">16ms</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </template>
 
-document.getElementById('firebase-login').addEventListener('click', function() {
-  ref.authWithOAuthPopup("google", authHandler, {'scope': "email"});
-});
+  <!-- unable to authenticate to analytics with our dashboard user
+  <script src="analytics.js"></script>
+  -->
+  <script src="firebase.js"></script>
+  <script src="github.js"></script>
 
-document.getElementById('firebase-logout').addEventListener('click', function() {
-  console.log('Logging out');
-  ref.unauth();
-});
-
-</script>
+  <script src="script.js"></script>
 </body>
 </html>
