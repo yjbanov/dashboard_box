@@ -36,6 +36,7 @@
     ref.child('measurements').on("value", function(snapshot) {
       removeExistingBoxes();
       generateBoxes(snapshot.val());
+      updateLastJobRanTime(snapshot.child('build').child('current').val());
     }, function (errorObject) {
       console.log("The read failed: " + errorObject.code);
     });
@@ -139,6 +140,13 @@
     'build',
     'stocks__start_up'
   ];
+
+  function updateLastJobRanTime(buildData) {
+    var lastJobRanTime = document.querySelector('#last-job-ran-time');
+    if (lastJobRanTime) {
+      lastJobRanTime.textContent = buildData.build_timestamp;
+    }
+  }
 
   function generateBoxes(measurements) {
     for (var measurementName in measurements) {
