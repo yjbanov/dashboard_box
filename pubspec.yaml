@@ -1,6 +1,16 @@
 name: dashboard_box
 version: 0.0.1
+author: Flutter Authors <flutter-dev@googlegroups.com>
+description: Scripts that generate the Flutter project status dashboard
+homepage: https://github.com/flutter/dashboard_box
 dependencies:
-  args: ^0.13.0
-  firebase_rest: 0.1.3
-  path: any
+  path: '^1.3.0'
+  stack_trace: '^1.6.5'
+  args: '^0.13.0'
+  firebase_rest: '^0.1.3'
+
+environment:
+  sdk: '>=1.12.0 <2.0.0'
+
+dartdoc:
+  nodoc: true

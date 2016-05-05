@@ -46,7 +46,12 @@ main(List<String> args) async {
 }
 
 void _patchupJson(File jsonFile, DateTime now, { double expected }) {
-  dynamic json = JSON.decode(jsonFile.readAsStringSync());
+  Map<String, dynamic> json;
+  if (jsonFile.existsSync()) {
+    json = JSON.decode(jsonFile.readAsStringSync());
+  } else {
+    json = <String, dynamic>{};
+  }
   json['timestamp'] = now.millisecondsSinceEpoch;
   json['sdk'] = sdkVersion;
   if (expected != null)
