@@ -9,57 +9,57 @@ import 'package:path/path.dart' as path;
 import 'package:stack_trace/stack_trace.dart';
 
 import 'package:dashboard_box/src/utils.dart';
+import 'package:dashboard_box/src/firebase_uploader.dart';
 
 Future<Null> main(List<String> args) async {
-  if (args.length != 1) {
+  if (args.length != 1)
     fail('Expects a single argument pointing to the root directory of the dashboard but got: ${args}');
-  }
 
   config = new Config(args.single);
 
-  Chain.capture(() {
-    build();
+  Chain.capture(() async {
+    section('Build started on ${new DateTime.now()}');
+    print(config);
+
+    if (!exists(config.dataDirectory))
+      rrm(config.dataDirectory);
+
+    mkdirs(config.dataDirectory);
+
+    await build();
+
+    section('Build finished on ${new DateTime.now()}');
   });
 }
 
 Future<Null> build() async {
-  section('Build started on ${new DateTime.now()}');
-  print(config);
-
-  if (!config.dataDirectory.existsSync()) {
-    config.dataDirectory.deleteSync(recursive: true);
-  }
-  config.dataDirectory.createSync(recursive: true);
-
+  await prepareDataDirectory();
   await getFlutter();
   await runPerfTests();
   await runStartupTests();
   await runAnalyzerTests();
+  await generateBuildInfo();
+  await uploadDataToFirebase();
+}
 
-  section('Generate dashboard');
+Future<Null> prepareDataDirectory() async {
+  // Backup old data
+  if (!exists(config.backupDirectory))
+    mkdirs(config.backupDirectory);
 
-  config.dashboardDirectory.createSync(recursive: true);
-  cd(config.dashboardDirectory);
+  if (!exists(config.dataDirectory))
+    move(config.dataDirectory, to: config.backupDirectory);
 
-  Map<String, dynamic> summaries = <String, dynamic>{};
-  config.dataDirectory.listSync().forEach((FileSystemEntity entity) async {
-    if (entity is! File || !entity.path.endsWith('__timeline_summary.json'))
-      return;
-
-    File file = entity;
-    Map<String, dynamic> timelineSummary = JSON.decode(await file.readAsString());
-    summaries[path.basenameWithoutExtension(file.path)] = timelineSummary;
-  });
-  await config.summariesFile.writeAsString(JSON.encode(summaries));
+  mkdir(config.dataDirectory);
 }
 
 Future<Null> getFlutter() async {
   section('Get Flutter!');
 
   cd(config.rootDirectory);
-  if (config.flutterDirectory.existsSync()) {
-    config.flutterDirectory.deleteSync(recursive: true);
-  }
+  if (exists(config.flutterDirectory))
+    rrm(config.flutterDirectory);
+
   await exec('git', ['clone', '--depth', '1', 'https://github.com/flutter/flutter.git']);
   await flutter('config', options: ['--no-analytics']);
   await flutter('doctor');
@@ -92,7 +92,7 @@ Future<int> runTest(String testDirectory, String testTarget, String testName) {
       config.androidDeviceId
     ]);
     copy(file('${testDirectory}/build/${testName}.timeline_summary.json'),
-        dir('${config.dataDirectory.path}'), name: '${testName}__timeline_summary.json');
+        config.dataDirectory, name: '${testName}__timeline_summary.json');
   });
 }
 
@@ -106,8 +106,8 @@ Future<int> runStartupTest(String testDirectory, String testName) {
       '-d',
       config.androidDeviceId
     ]);
-    file('${testDirectory}/build/start_up_info.json')
-        .copySync('${config.dataDirectory.path}/${testName}__start_up.json');
+    copy(file('${testDirectory}/build/start_up_info.json'),
+        config.dataDirectory, name: '${testName}__start_up.json');
   });
 }
 
@@ -140,14 +140,35 @@ Future<Null> runAnalyzerTests() async {
 
 void _patchupAnalysisResult(File jsonFile, DateTime now, { double expected }) {
   Map<String, dynamic> json;
-  if (jsonFile.existsSync()) {
+  if (jsonFile.existsSync())
     json = JSON.decode(jsonFile.readAsStringSync());
-  } else {
+  else
     json = <String, dynamic>{};
-  }
+
   json['timestamp'] = now.millisecondsSinceEpoch;
   json['sdk'] = sdkVersion;
   if (expected != null)
     json['expected'] = expected;
   jsonFile.writeAsStringSync(new JsonEncoder.withIndent('  ').convert(json) + '\n');
+}
+
+Future<Null> generateBuildInfo() async {
+  await config.buildInfoFile.writeAsString(JSON.encode({
+    'build_timestamp': '${new DateTime.now()}',
+    'dart_version': await getDartVersion()
+  }));
+}
+
+Future<String> getDartVersion() async {
+  String version = await eval(dartBin, ['--version']);
+  return version.replaceAll('"', "'");
+}
+
+Future<Null> uploadDataToFirebase() async {
+  if (Platform.environment['UPLOAD_DASHBOARD_DATA'] != 'yes')
+    return null;
+
+  for (File file in ls(config.dataDirectory)) {
+    await uploadToFirebase(file);
+  }
 }
