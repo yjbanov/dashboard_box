@@ -20,8 +20,6 @@ GSUTIL=${GSUTIL:-"/Users/$USER/google-cloud-sdk/bin/gsutil"}
 
 # Run performance benchmarks
 dart $SCRIPTS_DIRECTORY/bin/build.dart $ROOT_DIRECTORY
-# Run the analysis benchmarks.
-(dart $SCRIPTS_DIRECTORY/bin/analysis_benchmarks.dart --flutter-directory=$FLUTTER_DIRECTORY --data-directory=$DATA_DIRECTORY)
 
 ANALYSIS="{ \"flutter_analyze_flutter_repo\": $(cat $DATA_DIRECTORY/analyzer_cli__analysis_time.json), "
 ANALYSIS="${ANALYSIS} \"analysis_server_mega_gallery\": $(cat $DATA_DIRECTORY/analyzer_server__analysis_time.json) }"
