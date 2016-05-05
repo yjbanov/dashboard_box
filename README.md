@@ -25,3 +25,11 @@ To test this script locally:
 If `launchd` was able to run the script, you will be able to find the output in
 `/tmp/flutter.dashboard.stdout` (standard output) and in
 `/tmp/flutter.dashboard.stderr` (standard error).
+
+## Locally running the dashboard front-end
+
+To locally test the dashboard front-end, use
+`http://localhost:8181` and serve the `main_site`
+directory from this repo.
+
+The OAuth redirects are very specific.
