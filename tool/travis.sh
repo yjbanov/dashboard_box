@@ -11,6 +11,7 @@ if [ "$TRAVIS_PULL_REQUEST" = "false" ]; then
     echo "Deploying to Firebase."
 
     npm install -g firebase-tools
+    cd main_site
     firebase deploy --token "$FIREBASE_TOKEN" -f purple-butterfly-3000
   fi
 fi
