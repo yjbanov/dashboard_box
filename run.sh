@@ -87,6 +87,11 @@ flutter config --no-analytics
 flutter doctor
 flutter update-packages
 
+# --------------------------
+# Set up the Dart project.
+# --------------------------
+
+(cd ${ROOT_DIRECTORY}/dashboard_box; pub get)
 
 # --------------------------
 # Run tests
@@ -136,26 +141,8 @@ done
 SUMMARIES="${SUMMARIES} \"blank\": {}}"
 echo $SUMMARIES > $SUMMARIES_FILE
 
-# Expecting mega to fail here. Will fix soon.
-
-set +e
-
-# Analyze the repo.
-flutter analyze --flutter-repo --benchmark --benchmark-expected=25.0
-mv analysis_benchmark.json $DATA_DIRECTORY/analyzer_cli__analysis_time.json
-
-# Generate a large sample app.
-(cd $FLUTTER_DIRECTORY; dart dev/tools/mega_gallery.dart)
-
-# Analyze it.
-pushd $FLUTTER_DIRECTORY/dev/benchmarks/mega_gallery
-flutter analyze --watch --benchmark --benchmark-expected=10.0
-mv analysis_benchmark.json $DATA_DIRECTORY/analyzer_server__analysis_time.json
-popd
-
-# No longer expecting anything to fail from here on out.
-
-set -e
+# Run the analysis benchmarks.
+(cd ${ROOT_DIRECTORY}/dashboard_box; dart bin/analysis_benchmarks.dart --flutter-directory=$FLUTTER_DIRECTORY --data-directory=$DATA_DIRECTORY)
 
 ANALYSIS="{ \"flutter_analyze_flutter_repo\": $(cat $DATA_DIRECTORY/analyzer_cli__analysis_time.json), "
 ANALYSIS="${ANALYSIS} \"analysis_server_mega_gallery\": $(cat $DATA_DIRECTORY/analyzer_server__analysis_time.json) }"
@@ -183,8 +170,6 @@ if [[ "$UPLOAD_DASHBOARD_DATA" == "yes" ]]; then
   $GSUTIL -m acl ch -R -g 'google.com:R' gs://flutter-dashboard/current
   $GSUTIL -m acl ch -R -u 'goog.flutter.dashboard@gmail.com:R' gs://flutter-dashboard/current
 
-  (cd ${ROOT_DIRECTORY}/dashboard_box/src/firebase_uploader; pub get)
-
   set +e
 
   shopt -s nullglob
@@ -192,7 +177,7 @@ if [[ "$UPLOAD_DASHBOARD_DATA" == "yes" ]]; then
     if [[ ( "$f" == *analysis.json ) || ( "$f" == *summaries.json )]] ; then
       continue
     fi
-    dart ${ROOT_DIRECTORY}/dashboard_box/src/firebase_uploader/bin/uploader.dart $f
+    dart ${ROOT_DIRECTORY}/dashboard_box/bin/firebase_uploader.dart $f
   done
 
   set -e

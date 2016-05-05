@@ -2,31 +2,30 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+import 'dart:convert' show JSON;
+import 'dart:io';
+
+import 'package:dashboard_box/src/utils.dart';
 import 'package:firebase_rest/firebase_rest.dart';
 import 'package:path/path.dart' as path;
-import 'dart:io';
-import 'dart:convert' show JSON;
 
 const firebaseBaseUrl = 'https://purple-butterfly-3000.firebaseio.com';
 
 main(List<String> args) async {
   if (args.length != 1) {
-    print("Usage: dart uploader.dart <path_to_measurement_json>");
-    exit(1);
+    fail("Usage: dart uploader.dart <path_to_measurement_json>");
   }
 
   var measurementJsonPath = args[0];
 
   if (!measurementJsonPath.endsWith('.json')) {
-    print("Error: path must be to a JSON file ending in .json");
-    exit(1);
+    fail("Error: path must be to a JSON file ending in .json");
   }
 
   var measurementJson = new File(measurementJsonPath);
 
   if (!measurementJson.existsSync()) {
-    print("Error: $measurementJsonPath not found");
-    exit(1);
+    fail("Error: $measurementJsonPath not found");
   }
 
   var measurementKey = path.basenameWithoutExtension(measurementJsonPath);
@@ -35,8 +34,7 @@ main(List<String> args) async {
 
   var firebaseToken = Platform.environment['FIREBASE_FLUTTER_DASHBOARD_TOKEN'];
   if (firebaseToken == null) {
-    print('FIREBASE_FLUTTER_DASHBOARD_TOKEN not found in environment.');
-    exit(1);
+    fail('FIREBASE_FLUTTER_DASHBOARD_TOKEN not found in environment.');
   }
 
   var ref = new Firebase(Uri.parse("$firebaseBaseUrl/measurements"),
