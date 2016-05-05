@@ -52,7 +52,12 @@
       <div class="card-inside">
         <div class="metric-type">Analysis time <span class="metric-name-wrapper">(<span class="metric-name"></span>)</span></div>
         <div class="metric-data"><span class="metric-number"></span><span class="metric-unit">s</span></div>
-        <div>Q2 goal: <span class="metric-target"></span>s</div>
+        <table class="stats-table">
+          <tr>
+            <td class="stats-label">Q2 goal:</td>
+            <td class="stats-value"><span class="metric-target"></span>s</td>
+          </tr>
+        </table>
       </div>
     </div>
   </template>
@@ -63,15 +68,20 @@
         <div class="metric-type">Time to first frame <span class="metric-name-wrapper">(<span class="metric-name"></span>)</span></div>
         <div class="metric-data"><span class="metric-number"></span><span class="metric-unit">ms</span></div>
 
-        <div>
-          To framework init: <span class="time-to-framework-init"></span>ms
-        </div>
-        <div>
-          After framework init: <span class="time-after-init-to-first-frame"></span>ms
-        </div>
-
-        <div>Q2 goal: <span class="metric-target">600</span>ms</div>
-
+        <table class="stats-table">
+          <tr>
+            <td class="stats-label">To framework init:</td>
+            <td class="stats-value"><span class="time-to-framework-init"></span>ms</td>
+          </tr>
+          <tr>
+            <td class="stats-label">After framework init:</td>
+            <td class="stats-value"><span class="time-after-init-to-first-frame"></span>ms</td>
+          </tr>
+          <tr>
+            <td class="stats-label">Q2 goal:</td>
+            <td class="stats-value"><span class="metric-target">600</span>ms</td>
+          </tr>
+        </table>
       </div>
     </div>
   </template>
@@ -80,7 +90,7 @@
     <div class="card timeline_summary from-firebase">
       <div class="card-inside">
         <div class="perf-test-summary-card">
-        <div class="metric-type"><span class="title"></span></div>
+        <div class="metric-type">Scroll perf <span class="metric-name-wrapper">(<span class="metric-name"></span>)</span></div>
           <div class="metric-data"><span class="metric-number"></span><span class="metric-unit"> missed</span></div>
           <!-- This box that contains aggregate numbers and declares success/failure -->
           <div style="min-width: 150px">

@@ -12,7 +12,8 @@ body {
 }
 
 .last-updated {
-  font-size: 12px;
+  font-size: 14px;
+  margin-left: 32px;
 }
 
 .card {
@@ -26,7 +27,6 @@ body {
 
   /* center the inside contents */
   display: flex;
-  align-items: center;
   justify-content: center;
 }
 
@@ -50,8 +50,9 @@ body {
 }
 
 .footer {
-  position:fixed;
-  bottom:0;
+  position: fixed;
+  bottom: 0;
+  padding: 10px;
 }
 
 h3 {
@@ -117,17 +118,31 @@ span.metric-section + span.metric-section {
   background-color: #F9FBE7;
   z-index: 0; }
 
-.good-frame {
-  width: 1px;
+.frames .frame {
+  width: 2px;
   z-index: 2;
+}
+
+.good-frame {
   background-color: #468263; }
 
 .bad-frame {
-  width: 1px;
-  z-index: 2;
   background-color: #FF2222; }
 
 .terrible-frame {
-  width: 1px;
-  z-index: 2;
   background-color: #910000; }
+
+table.stats-table {
+  width: 100%;
+}
+
+td.stats-label {
+  width: 50%;
+  text-align: end;
+}
+
+td.stats-value {
+  width: 50%;
+  text-align: start;
+  padding-left: 8px;
+}

@@ -69,6 +69,12 @@
     return div.firstChild;
   }
 
+  function _comma(str) {
+    if (str.length > 3)
+      str = str.substring(0, str.length - 3) + ',' + str.substring(str.length - 3);
+    return str;
+  }
+
   var generators = {
     '__analysis_time': function(measurementType, measurementName, data) {
       var clone = _cloneTemplate(measurementType);
@@ -87,10 +93,10 @@
       if (clone == null) return;
       var title = _getTitleForTemplate(measurementType, measurementName);
       clone.querySelector('.metric-name').textContent = title;
-      var timeToFirstFrame = (data.timeToFirstFrameMicros/1000).toFixed(0);
+      var timeToFirstFrame = _comma((data.timeToFirstFrameMicros/1000).toFixed(0));
       clone.querySelector('.metric-number').textContent = timeToFirstFrame;
-      clone.querySelector('.time-to-framework-init').textContent = (data.timeToFrameworkInitMicros/1000).toFixed(0);
-      clone.querySelector('.time-after-init-to-first-frame').textContent = (data.timeAfterFrameworkInitMicros/1000).toFixed(0);
+      clone.querySelector('.time-to-framework-init').textContent = _comma((data.timeToFrameworkInitMicros/1000).toFixed(0));
+      clone.querySelector('.time-after-init-to-first-frame').textContent = _comma((data.timeAfterFrameworkInitMicros/1000).toFixed(0));
 
       document.querySelector('#container').appendChild(clone);
     },
@@ -99,7 +105,9 @@
       var clone = _cloneTemplate(measurementType);
       if (clone == null) return;
       var title = _getTitleForTemplate(measurementType, measurementName);
-      clone.querySelector('.title').textContent = title.replace(/_/g, ' ');
+      if (title.endsWith('_scroll_perf'))
+        title = title.substring(0, title.length - '_scroll_perf'.length)
+      clone.querySelector('.metric-name').textContent = title;
       clone.querySelector('.average_frame_build_time_millis').textContent = data.average_frame_build_time_millis.toFixed(2);
       clone.querySelector('.frame_count').textContent = data.frame_count;
       clone.querySelector('.metric-number').textContent = data.missed_frame_build_budget_count;
@@ -114,11 +122,11 @@
       data.frame_build_times.forEach(function (frameBuildTime) {
         var div;
         if (frameBuildTime > 24000) {
-          div = _parseHtml('<div class="terrible-frame" style="height: ' + (24000 / 200) + 'px"></div>');
+          div = _parseHtml('<div class="terrible-frame frame" style="height: ' + (24000 / 200) + 'px"></div>');
         } else if (frameBuildTime > 8000) {
-          div = _parseHtml('<div class="bad-frame" style="height: ' + (frameBuildTime / 200) + 'px"></div>');
+          div = _parseHtml('<div class="bad-frame frame" style="height: ' + (frameBuildTime / 200) + 'px"></div>');
         } else {
-          div = _parseHtml('<div class="good-frame" style="height: ' + (frameBuildTime / 200) + 'px"></div>');
+          div = _parseHtml('<div class="good-frame frame" style="height: ' + (frameBuildTime / 200) + 'px"></div>');
         }
         framesContainer.appendChild(div);
       });
