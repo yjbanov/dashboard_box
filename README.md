@@ -12,24 +12,25 @@ To test this script locally:
 - For better results, make sure there's nothing else in `~/flutter_dashboard`.
 - Complete the [Flutter Setup](https://flutter.io/setup/), if you haven't
   already. Note, however, that this job will install its own copy of Flutter.
-- Install [Jekyll](https://jekyllrb.com).
 - Connect an Android device.
-- Set `ANDROID_DEVICE_ID` environment variable to the ID of your device as
-  reported by `flutter devices` command (this is because the ID of the device
-  connected to the box is not the same as yours).
-- Launch `run.sh`. Or, if you are testing the `lanuchd` configuration, then
-  `launchctl start job.plist`, but don't forget to kill the job after testing,
-  otherwise it will spin on your computer forever, draining all kinds of
-  resources (`launchctl remove io.flutter.dashboard`).
+- Create `config.json` file in `dashboard_box` directory.
+- Launch `run.sh`.
 
-If `launchd` was able to run the script, you will be able to find the output in
-`/tmp/flutter.dashboard.stdout` (standard output) and in
-`/tmp/flutter.dashboard.stderr` (standard error).
+On the actual build box `launchd` writes standard output in
+`/tmp/flutter.dashboard.stdout` and `/tmp/flutter.dashboard.stderr`.
 
-## Locally running the dashboard front-end
+## config.json
 
-To locally test the dashboard front-end, use
-`http://localhost:8181` and serve the `main_site`
-directory from this repo.
+The config file must be a JSON file under `dashboard_box` defining the following variables:
 
-The OAuth redirects are very specific.
+ * `ANDROID_DEVICE_ID` - the ID of the Android device used for performance testing
+ * `FIREBASE_FLUTTER_DASHBOARD_TOKEN` - authentication token to Firebase used to upload metrics (not needed for local testing)
+
+Example:
+
+```json
+{
+  "ANDROID_DEVICE_ID": "...",
+  "FIREBASE_FLUTTER_DASHBOARD_TOKEN": "..."
+}
+```
