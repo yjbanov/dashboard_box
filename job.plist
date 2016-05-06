@@ -11,6 +11,10 @@
       <key>UPLOAD_DASHBOARD_DATA</key>
       <string>yes</string>
     </dict>
+    <dict>
+      <key>DART_SDK</key>
+      <string>/usr/local/opt/dart/libexec</string>
+    </dict>
 
     <key>ProgramArguments</key>
     <array>
