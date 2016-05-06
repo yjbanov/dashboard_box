@@ -1,0 +1,23 @@
+{
+  "rules": {
+    ".read": "auth.provider === 'google' && root.child('authorized_users').child(auth.uid).exists()",
+    ".write": "auth.provider === 'google' && root.child('authorized_users').child(auth.uid).exists()",
+    "measurements": {
+      "analyzer_cli__analysis_time": {
+        "history": {
+          ".indexOn": "timestamp"
+        }
+      },
+      "analyzer_server__analysis_time": {
+        "history": {
+          ".indexOn": "timestamp"
+        }
+      }
+    },
+    "users": {
+      "$user_id": {
+        ".write": "auth.provider === 'google' && $user_id === auth.uid"
+      }
+    }
+  }
+}

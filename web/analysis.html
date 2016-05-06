@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+
+<!--
+  Copyright (c) 2016 The Chromium Authors. All rights reserved.
+  Use of this source code is governed by a BSD-style license that can be
+  found in the LICENSE file.
+-->
+
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="scaffolded-by" content="https://github.com/google/stagehand">
+
+  <title>Flutter Dashboard - Analysis</title>
+  <link href="styles.css" rel="stylesheet">
+  <link href="quantum_theme.css" rel="stylesheet">
+
+  <script src="https://cdn.firebase.com/js/client/2.4.2/firebase.js"></script>
+  <script src="analysis.dart" type="application/dart" defer></script>
+  <script src="packages/browser/dart.js" defer></script>
+  <style>
+    div.card {
+      width: inherit;
+    }
+
+    .card .metric-type {
+      font-size: 40px;
+      margin-bottom: 20px;
+    }
+
+    .chart-host {
+      width: 80%;
+    }
+
+    .chart-legend-host {
+      width: 20%;
+    }
+
+    .chart-legend-row {
+      font-size: inherit;
+    }
+  </style>
+</head>
+
+<body>
+  <div style="display: flex">
+    <div class="chart-wrapper card" id="time-series-chart" style="flex: 2">
+      <div class="chart-title-wrapper">
+        <div class="metric-type">Flutter Analysis Times</div>
+      </div>
+      <div class="chart-host-wrapper">
+        <div class="chart-host" dir="ltr"></div>
+        <div class="chart-legend-host"></div>
+      </div>
+    </div>
+
+    <div class="card" style="flex: 2; visibility: hidden">
+    </div>
+  </div>
+
+  <div style="display: flex">
+    <div class="card" style="flex: 2; visibility: hidden">
+    </div>
+    <div class="card" style="flex: 2; min-height: 412px; display: flex; justify-content: flex-end">
+      <img src="logo.svg" style="width: 300px; opacity: 0.6; align-self: flex-end">
+    </div>
+  </div>
+</body>
+
+</footer>

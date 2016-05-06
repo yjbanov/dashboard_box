@@ -14,20 +14,16 @@ import 'utils.dart';
 const firebaseBaseUrl = 'https://purple-butterfly-3000.firebaseio.com';
 
 Future<Null> uploadToFirebase(File measurementJson) async {
-  if (!measurementJson.path.endsWith('.json')) {
+  if (!measurementJson.path.endsWith('.json'))
     fail("Error: path must be to a JSON file ending in .json");
-  }
 
-  if (!exists(measurementJson)) {
+  if (!exists(measurementJson))
     fail("Error: $measurementJson not found");
-  }
 
   var measurementKey = path.basenameWithoutExtension(measurementJson.path);
-
   print('Uploading $measurementJson to key $measurementKey');
 
   var firebaseToken = config.firebaseFlutterDashboardToken;
-
   var ref = new Firebase(Uri.parse("$firebaseBaseUrl/measurements"),
       auth: firebaseToken);
 

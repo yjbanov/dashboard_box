@@ -61,11 +61,11 @@ void section(String title) {
   print('••• $title •••');
 }
 
-String get sdkVersion {
-  String ver = Platform.version;
-  if (ver.indexOf('(') != -1)
-    ver = ver.substring(0, ver.indexOf('(')).trim();
-  return ver;
+Future<String> getDartVersion() async {
+  String version = await eval(dartBin, ['--version']);
+  if (version.indexOf('(') != -1)
+    version = version.substring(0, version.indexOf('(')).trim();
+  return version.replaceAll('"', "'");
 }
 
 /// Executes a command and returns its exit code.
@@ -202,4 +202,8 @@ dynamic/*=T*/ requireConfigProperty(Map<String, dynamic/*<T>*/> map, String prop
     fail('Configuration property not found: $propertyName');
 
   return map[propertyName];
+}
+
+String jsonEncode(dynamic data) {
+  return new JsonEncoder.withIndent('  ').convert(data) + '\n';
 }

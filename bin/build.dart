@@ -5,6 +5,7 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
+
 import 'package:path/path.dart' as path;
 import 'package:stack_trace/stack_trace.dart';
 
@@ -113,6 +114,7 @@ Future<int> runStartupTest(String testDirectory, String testName) {
 
 Future<Null> runAnalyzerTests() async {
   DateTime now = new DateTime.now();
+  String sdk = await getDartVersion();
 
   section('flutter analyze --flutter-repo');
   File benchmark = file(path.join(config.flutterDirectory.path, 'analysis_benchmark.json'));
@@ -121,7 +123,7 @@ Future<Null> runAnalyzerTests() async {
     await flutter('analyze', options: ['--flutter-repo', '--benchmark']);
   });
 
-  _patchupAnalysisResult(benchmark, now, expected: 25.0);
+  _patchupAnalysisResult(benchmark, now, expected: 25.0, sdk: sdk);
   copy(benchmark, config.dataDirectory, name: 'analyzer_cli__analysis_time.json');
 
   section('analysis server mega_gallery');
@@ -134,11 +136,11 @@ Future<Null> runAnalyzerTests() async {
   await inDirectory(megaDir, () async {
     await flutter('analyze', options: ['--watch', '--benchmark']);
   });
-  _patchupAnalysisResult(benchmark, now, expected: 10.0);
+  _patchupAnalysisResult(benchmark, now, expected: 10.0, sdk: sdk);
   copy(benchmark, config.dataDirectory, name: 'analyzer_server__analysis_time.json');
 }
 
-void _patchupAnalysisResult(File jsonFile, DateTime now, { double expected }) {
+void _patchupAnalysisResult(File jsonFile, DateTime now, { double expected, String sdk}) {
   Map<String, dynamic> json;
   if (jsonFile.existsSync())
     json = JSON.decode(jsonFile.readAsStringSync());
@@ -146,22 +148,18 @@ void _patchupAnalysisResult(File jsonFile, DateTime now, { double expected }) {
     json = <String, dynamic>{};
 
   json['timestamp'] = now.millisecondsSinceEpoch;
-  json['sdk'] = sdkVersion;
+  if (sdk != null)
+    json['sdk'] = sdk;
   if (expected != null)
     json['expected'] = expected;
-  jsonFile.writeAsStringSync(new JsonEncoder.withIndent('  ').convert(json) + '\n');
+  jsonFile.writeAsStringSync(jsonEncode(json));
 }
 
 Future<Null> generateBuildInfo() async {
-  await config.buildInfoFile.writeAsString(JSON.encode({
+  await config.buildInfoFile.writeAsString(jsonEncode({
     'build_timestamp': '${new DateTime.now()}',
     'dart_version': await getDartVersion()
   }));
-}
-
-Future<String> getDartVersion() async {
-  String version = await eval(dartBin, ['--version']);
-  return version.replaceAll('"', "'");
 }
 
 Future<Null> uploadDataToFirebase() async {

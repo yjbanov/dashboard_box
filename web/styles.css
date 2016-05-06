@@ -1,9 +1,16 @@
+/* Copyright (c) 2016 The Chromium Authors. All rights reserved. */
+/* Use of this source code is governed by a BSD-style license that can be */
+/* found in the LICENSE file. */
+
+@import url(https://fonts.googleapis.com/css?family=Roboto:300);
+
 body {
   background: #eee;
   font: 18px Roboto, sans-serif;
+  font-weight: 300;
   color: #333;
-  padding-bottom: 48px;
   margin: 0;
+  padding: 10px 10px 38px 10px;
 }
 
 #container {
@@ -54,6 +61,8 @@ body {
   position: fixed;
   bottom: 0;
   padding: 10px;
+  z-index: 2;
+  background: inherit;
 }
 
 h3 {
@@ -117,21 +126,25 @@ span.metric-section + span.metric-section {
   padding-right: 5px;
   padding-top: 2px;
   background-color: #F9FBE7;
-  z-index: 0; }
+  z-index: 0;
+}
 
 .frames .frame {
-  width: 2px;
+  width: 3px;
   z-index: 2;
 }
 
 .good-frame {
-  background-color: #468263; }
+  background-color: #468263;
+}
 
 .bad-frame {
-  background-color: #FF2222; }
+  background-color: #FF2222;
+}
 
 .terrible-frame {
-  background-color: #910000; }
+  background-color: #910000;
+}
 
 table.stats-table {
   width: 100%;

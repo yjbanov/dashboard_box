@@ -1,0 +1,15 @@
+{
+  "firebase": "purple-butterfly-3000",
+  "public": "build/web",
+
+  "rules": "firebase_rules.json",
+
+  "ignore": [
+    "firebase.json",
+    "**/.*",
+    "**/node_modules/**",
+    "packages/**/.*",
+    "web/packages/**/.*",
+    "build/web/packages/**/.*"
+  ]
+}
