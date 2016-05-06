@@ -6,6 +6,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:intl/intl.dart';
 import 'package:path/path.dart' as path;
 import 'package:stack_trace/stack_trace.dart';
 
@@ -48,8 +49,11 @@ Future<Null> prepareDataDirectory() async {
   if (!exists(config.backupDirectory))
     mkdirs(config.backupDirectory);
 
-  if (!exists(config.dataDirectory))
-    move(config.dataDirectory, to: config.backupDirectory);
+  if (exists(config.dataDirectory)) {
+    DateFormat dfmt = new DateFormat('yyyy-MM-dd-HHmmss');
+    String nameWithTimestamp = dfmt.format(new DateTime.now());
+    move(config.dataDirectory, to: config.backupDirectory, name: nameWithTimestamp);
+  }
 
   mkdir(config.dataDirectory);
 }
