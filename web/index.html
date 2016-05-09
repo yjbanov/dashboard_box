@@ -10,6 +10,7 @@
 <head>
   <title>Flutter Dashboard</title>
   <link href="styles.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
 
   <script src="https://cdn.firebase.com/js/client/2.4.2/firebase.js"></script>
 
@@ -43,16 +44,26 @@
     </div>
   </div>
 
-  <div class="footer">
+  <footer>
+    <div>
+      <section id="auth-button"></section>
+      <button id="firebase-login">Firebase Login</button>
+      <button id="firebase-logout">Firebase Logout</button>
+    </div>
 
-    <section id="auth-button"></section>
-    <button id="firebase-login">Firebase Login</button>
-    <button id="firebase-logout">Firebase Logout</button>
-    <span class="last-updated">Last updated from Firebase: <span id="firebase-last-updated-time"></span></span>
-    <span class="last-updated">Last updated from Github: <span id="github-last-updated-time"></span></span>
-    <span class="last-updated">Last job ran: <span id="last-job-ran-time"></span></span>
+    <div style="flex: 2; text-align: center">
+      <span class="last-updated">Firebase updated <span id="firebase-last-updated-time"></span></span>
+      <span class="last-updated">&bull;</span>
+      <span class="last-updated">Github updated <span id="github-last-updated-time"></span></span>
+      <span class="last-updated">&bull;</span>
+      <span class="last-updated">Job ran at <span id="last-job-ran-time"></span></span>
+    </div>
 
-  </div>
+    <div>
+      <a href="index.html"><i class="material-icons md-24">view_compact</i></a>
+      <a href="analysis.html"><i class="material-icons md-24">panorama</i></a>
+    </div>
+  </footer>
 
   <template id="__analysis_time_tmpl">
     <div class="card analysis_time from-firebase">
@@ -123,7 +134,6 @@
   -->
   <script src="firebase.js"></script>
   <script src="github.js"></script>
-
   <script src="script.js"></script>
 </body>
 </html>

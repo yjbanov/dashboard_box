@@ -18,9 +18,8 @@ body {
   flex-flow: row wrap;
 }
 
-.last-updated {
+span.last-updated {
   font-size: 14px;
-  margin-left: 32px;
 }
 
 .card {
@@ -57,12 +56,23 @@ body {
   font-size: 72px;
 }
 
-.footer {
+footer {
   position: fixed;
   bottom: 0;
-  padding: 10px;
+  left: 0;
+  right: 0;
+  padding: 2px 19px 10px 19px;
   z-index: 2;
   background: inherit;
+  display: flex;
+}
+
+footer span {
+  vertical-align: bottom;
+}
+
+footer i.material-icons {
+  vertical-align: bottom;
 }
 
 h3 {
@@ -78,21 +88,26 @@ h3 {
 }
 
 span.metric-section + span.metric-section {
-  padding-left: 30px; }
+  padding-left: 30px;
+}
 
 .metric {
-  font-weight: 300; }
+  font-weight: 300;
+}
 
 .warning {
   font-weight: 400;
-  color: #FF2222; }
+  color: #FF2222;
+}
 
 .congrats {
-  color: #468263; }
+  color: #468263;
+}
 
 .row {
   display: flex;
-  flex-direction: row; }
+  flex-direction: row;
+}
 
 .frames {
   display: flex;
