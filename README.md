@@ -26,17 +26,17 @@ On the actual build box `launchd` writes standard output in
 The config file must be a JSON file under `dashboard_box` and define the
 following variables:
 
- * `ANDROID_DEVICE_ID` - the ID of the Android device used for performance
+ * `android_device_id` - the ID of the Android device used for performance
    testing
- * `FIREBASE_FLUTTER_DASHBOARD_TOKEN` - authentication token to Firebase used to
+ * `firebase_flutter_dashboard_token` - authentication token to Firebase used to
    upload metrics (not needed for local testing)
 
 Example:
 
 ```json
 {
-  "ANDROID_DEVICE_ID": "...",
-  "FIREBASE_FLUTTER_DASHBOARD_TOKEN": "..."
+  "android_device_id": "...",
+  "firebase_flutter_dashboard_token": "..."
 }
 ```
 

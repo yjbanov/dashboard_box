@@ -85,7 +85,7 @@
 
       clone.querySelector('.metric-number').textContent = parseFloat(data.time).toFixed(1);
       clone.querySelector('.metric-name').textContent = title;
-      clone.querySelector('.metric-target').textContent = data.expected;
+      clone.querySelector('.metric-target').textContent = data.expected.toFixed(1);
       document.querySelector('#container').appendChild(clone);
     },
 

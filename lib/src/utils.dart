@@ -62,18 +62,32 @@ void section(String title) {
 }
 
 Future<String> getDartVersion() async {
-  String version = await eval(dartBin, ['--version']);
+  // The Dart SDK return the version text to stderr.
+  ProcessResult result = Process.runSync(dartBin, ['--version']);
+  String version = result.stderr.trim();
   if (version.indexOf('(') != -1)
     version = version.substring(0, version.indexOf('(')).trim();
   return version.replaceAll('"', "'");
+}
+
+Future<String> getFlutterRepoCommit() {
+  return inDirectory(config.flutterDirectory, () {
+    return eval('git', ['rev-parse', 'HEAD']);
+  });
 }
 
 /// Executes a command and returns its exit code.
 Future<int> exec(String executable, List<String> arguments, {Map<String, String> env, bool canFail: false}) async {
   print('Executing: $executable ${arguments.join(' ')}');
   Process proc = await Process.start(executable, arguments, environment: env, workingDirectory: cwd);
-  stdout.addStream(proc.stdout);
-  stderr.addStream(proc.stderr);
+  proc.stdout
+    .transform(UTF8.decoder)
+    .transform(const LineSplitter())
+    .listen(print);
+  proc.stderr
+    .transform(UTF8.decoder)
+    .transform(const LineSplitter())
+    .listen(stderr.writeln);
   int exitCode = await proc.exitCode;
 
   if (exitCode != 0 && !canFail)
@@ -93,7 +107,7 @@ Future<String> eval(String executable, List<String> arguments, {Map<String, Stri
   if (exitCode != 0 && !canFail)
     fail('Executable failed with exit code ${exitCode}.');
 
-  return output;
+  return output.trimRight();
 }
 
 Future<int> flutter(String command, {List<String> options: const<String>[]}) {
