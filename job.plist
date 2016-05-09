@@ -20,7 +20,7 @@
     <array>
       <string>/bin/sh</string>
       <string>-c</string>
-      <string>~/flutter_dashboard/dashboard_box/run.sh</string>
+      <string>~/flutter_dashboard/dashboard_box/setup.sh</string>
     </array>
 
     <!-- Run every hour -->
