@@ -10,8 +10,9 @@ import 'package:path/path.dart' as path;
 import 'package:stack_trace/stack_trace.dart';
 
 import 'package:dashboard_box/src/analysis.dart';
-import 'package:dashboard_box/src/utils.dart';
+import 'package:dashboard_box/src/buildbot.dart';
 import 'package:dashboard_box/src/firebase_uploader.dart';
+import 'package:dashboard_box/src/utils.dart';
 
 Future<Null> main(List<String> args) async {
   if (args.length != 1)
@@ -39,13 +40,37 @@ Future<Null> main(List<String> args) async {
 }
 
 Future<Null> build() async {
+  String revision = await getLatestGreenRevision();
+  if (hasAlreadyRun(revision)) {
+    print('No new green revisions found to run. Will check back again soon.');
+    return null;
+  }
+
+  await getFlutter(revision);
   await prepareDataDirectory();
-  await getFlutter();
   await runPerfTests();
   await runStartupTests();
   await runAnalyzerTests();
-  await generateBuildInfo();
+  Map<String, dynamic> buildInfo = await generateBuildInfo(revision);
   await uploadDataToFirebase();
+
+  markAsRan(revision, buildInfo);
+}
+
+final Directory tempDirectory = dir('${Platform.environment['HOME']}/.flutter_dashboard');
+
+File _revisionMarkerFile(String revision) {
+  mkdirs(tempDirectory);
+  return file('$tempDirectory/flutter-dashboard-revision-$revision');
+}
+
+bool hasAlreadyRun(String revision) => _revisionMarkerFile(revision).existsSync();
+
+void markAsRan(String revision, Map<String, dynamic> buildInfo) {
+  if (!shouldUploadData)
+    return;
+
+  _revisionMarkerFile(revision).writeAsStringSync(jsonEncode(buildInfo));
 }
 
 Future<Null> prepareDataDirectory() async {
@@ -62,14 +87,17 @@ Future<Null> prepareDataDirectory() async {
   mkdir(config.dataDirectory);
 }
 
-Future<Null> getFlutter() async {
+Future<Null> getFlutter(String revision) async {
   section('Get Flutter!');
 
   cd(config.rootDirectory);
   if (exists(config.flutterDirectory))
     rrm(config.flutterDirectory);
 
-  await exec('git', ['clone', '--depth', '1', 'https://github.com/flutter/flutter.git']);
+  await exec('git', ['clone', 'https://github.com/flutter/flutter.git']);
+  await inDirectory(config.flutterDirectory, () async {
+    await exec('git', ['checkout', revision]);
+  });
   await flutter('config', options: ['--no-analytics']);
 
   section('flutter doctor');
@@ -124,15 +152,20 @@ Future<int> runStartupTest(String testDirectory, String testName) {
   });
 }
 
-Future<Null> generateBuildInfo() async {
-  await config.buildInfoFile.writeAsString(jsonEncode({
+Future<Map<String, dynamic>> generateBuildInfo(String revision) async {
+  Map<String, dynamic> buildInfo = <String, dynamic>{
     'build_timestamp': '${new DateTime.now()}',
-    'dart_version': await getDartVersion()
-  }));
+    'dart_version': await getDartVersion(),
+    'revision': revision,
+  };
+  await config.buildInfoFile.writeAsString(jsonEncode(buildInfo));
+  return buildInfo;
 }
 
+bool get shouldUploadData => Platform.environment['UPLOAD_DASHBOARD_DATA'] != 'yes';
+
 Future<Null> uploadDataToFirebase() async {
-  if (Platform.environment['UPLOAD_DASHBOARD_DATA'] != 'yes')
+  if (shouldUploadData)
     return null;
 
   for (File file in ls(config.dataDirectory)) {
