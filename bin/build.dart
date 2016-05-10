@@ -165,7 +165,7 @@ Future<Map<String, dynamic>> generateBuildInfo(String revision) async {
 bool get shouldUploadData => Platform.environment['UPLOAD_DASHBOARD_DATA'] == 'yes';
 
 Future<Null> uploadDataToFirebase() async {
-  if (shouldUploadData)
+  if (!shouldUploadData)
     return null;
 
   for (File file in ls(config.dataDirectory)) {
