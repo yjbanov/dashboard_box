@@ -71,7 +71,7 @@ class FlutterAnalyzeAppBenchmark extends Benchmark {
     await inDirectory(megaDir, () async {
       await flutter('analyze', options: ['--watch', '--benchmark']);
     });
-    return _patchupResult(benchmarkFile, time, expected: 20.0, sdk: sdk, commit: commit);
+    return _patchupResult(benchmarkFile, time, expected: 10.0, sdk: sdk, commit: commit);
   }
 
   @override
