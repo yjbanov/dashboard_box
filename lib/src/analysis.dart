@@ -12,15 +12,15 @@ import 'benchmarks.dart';
 import 'utils.dart';
 
 Future<Null> runAnalyzerTests() async {
-  DateTime now = new DateTime.now();
   String sdk = await getDartVersion();
   String commit = await getFlutterRepoCommit();
+  DateTime time = await getFlutterRepoCommitTimestamp(commit);
 
-  Benchmark benchmark = new FlutterAnalyzeBenchmark(now, sdk, commit);
+  Benchmark benchmark = new FlutterAnalyzeBenchmark(time, sdk, commit);
   section(benchmark.name);
   await runBenchmark(benchmark, iterations: 3);
 
-  benchmark = new FlutterAnalyzeAppBenchmark(now, sdk, commit);
+  benchmark = new FlutterAnalyzeAppBenchmark(time, sdk, commit);
   section(benchmark.name);
   await runBenchmark(benchmark, iterations: 3);
 }

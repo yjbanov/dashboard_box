@@ -76,6 +76,15 @@ Future<String> getFlutterRepoCommit() {
   });
 }
 
+Future<DateTime> getFlutterRepoCommitTimestamp(String commit) {
+  // git show -s --format=%at 4b546df7f0b3858aaaa56c4079e5be1ba91fbb65
+  return inDirectory(config.flutterDirectory, () async {
+    String unixTimestamp = await eval('git', ['show', '-s', '--format=%at', commit]);
+    int secondsSinceEpoch = int.parse(unixTimestamp);
+    return new DateTime.fromMillisecondsSinceEpoch(secondsSinceEpoch * 1000);
+  });
+}
+
 /// Executes a command and returns its exit code.
 Future<int> exec(String executable, List<String> arguments, {Map<String, String> env, bool canFail: false}) async {
   print('Executing: $executable ${arguments.join(' ')}');
