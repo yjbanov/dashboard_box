@@ -198,7 +198,6 @@ scriptsDirectory: $scriptsDirectory
 configFile: $configFile
 buildInfoFile: $buildInfoFile
 androidDeviceId: $androidDeviceId
-firebaseFlutterDashboardToken: $firebaseFlutterDashboardToken
 '''.trim();
 }
 
