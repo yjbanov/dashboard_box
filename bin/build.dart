@@ -61,7 +61,7 @@ final Directory tempDirectory = dir('${Platform.environment['HOME']}/.flutter_da
 
 File _revisionMarkerFile(String revision) {
   mkdirs(tempDirectory);
-  return file('$tempDirectory/flutter-dashboard-revision-$revision');
+  return file('${tempDirectory.path}/flutter-dashboard-revision-$revision');
 }
 
 bool hasAlreadyRun(String revision) => _revisionMarkerFile(revision).existsSync();
