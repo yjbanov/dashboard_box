@@ -80,7 +80,7 @@ class FlutterAnalyzeAppBenchmark extends Benchmark {
   }
 }
 
-num _patchupResult(File jsonFile, DateTime now, {
+num _patchupResult(File jsonFile, DateTime time, {
   double expected,
   String sdk,
   String commit
@@ -91,13 +91,13 @@ num _patchupResult(File jsonFile, DateTime now, {
   else
     json = <String, dynamic>{};
 
-  json['timestamp'] = now.millisecondsSinceEpoch;
+  json['timestamp'] = time.millisecondsSinceEpoch;
   if (expected != null)
     json['expected'] = expected;
   if (sdk != null)
     json['sdk'] = sdk;
   if (commit != null)
-    json['commit'] = expected;
+    json['commit'] = commit;
   jsonFile.writeAsStringSync(jsonEncode(json));
 
   return json['time'];
