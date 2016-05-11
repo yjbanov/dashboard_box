@@ -4,28 +4,45 @@
 
 import 'dart:async';
 
+import 'package:args/args.dart';
 import 'package:http/http.dart' as http;
 import 'package:path/path.dart' as path;
 
 import 'package:dashboard_box/src/firebase.dart';
 import 'package:dashboard_box/src/utils.dart';
 
-/// Golem's scheduler server that receives metrics.
-const String schedulerIp = '146.148.43.81';
-/// Golem's scheduler server port.
-const int schedulerPort = 4536;
+String _serverUrl;
 
 /// Usage:
 ///
 /// From `~/flutter_dashboard` execute:
 ///
-///     dart -c dashboard_box/bin/firebase_to_golem.dart /Users/yjbanov/flutter_dashboard
+///     dart -c dashboard_box/bin/firebase_to_golem.dart \
+///       --server=http://hostname:port \
+///       --root-directory=$HOME/flutter_dashboard
 ///
-Future<Null> main(List<String> args) async {
-  if (args.length != 1)
-    fail('Expects a single argument pointing to the root directory of the dashboard but got: $args');
+Future<Null> main(List<String> rawArgs) async {
+  ArgParser argp = new ArgParser()
+    ..addOption('server')
+    ..addOption('root-directory');
+  ArgResults args = argp.parse(rawArgs);
 
-  config = new Config(path.normalize(path.absolute(args.single)));
+  if (!args.wasParsed('server') && !args.wasParsed('root-directory')) {
+    fail(
+r'''
+Usage:
+
+From `~/flutter_dashboard` execute:
+
+dart -c dashboard_box/bin/firebase_to_golem.dart \
+  --server=http://hostname:port \
+  --root-directory=$HOME/flutter_dashboard
+'''.trim()
+    );
+  }
+
+  _serverUrl = args['server'];
+  config = new Config(path.normalize(path.absolute(args['root-directory'])));
 
   syncContinuously() async {
     await syncToGolem();
@@ -77,7 +94,7 @@ Submitting:
 '''.trim());
 
   http.Response resp = await http.post(
-    'http://${schedulerIp}:${schedulerPort}/PostExternalResults',
+    '${_serverUrl}/PostExternalResults',
     body: jsonEncode([
         {
           'target': 'flutter',
