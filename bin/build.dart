@@ -11,7 +11,7 @@ import 'package:stack_trace/stack_trace.dart';
 
 import 'package:dashboard_box/src/analysis.dart';
 import 'package:dashboard_box/src/buildbot.dart';
-import 'package:dashboard_box/src/firebase_uploader.dart';
+import 'package:dashboard_box/src/firebase.dart';
 import 'package:dashboard_box/src/utils.dart';
 
 Future<Null> main(List<String> args) async {
@@ -85,26 +85,6 @@ Future<Null> prepareDataDirectory() async {
   }
 
   mkdir(config.dataDirectory);
-}
-
-Future<Null> getFlutter(String revision) async {
-  section('Get Flutter!');
-
-  cd(config.rootDirectory);
-  if (exists(config.flutterDirectory))
-    rrm(config.flutterDirectory);
-
-  await exec('git', ['clone', 'https://github.com/flutter/flutter.git']);
-  await inDirectory(config.flutterDirectory, () async {
-    await exec('git', ['checkout', revision]);
-  });
-  await flutter('config', options: ['--no-analytics']);
-
-  section('flutter doctor');
-  await flutter('doctor');
-
-  section('flutter update-packages');
-  await flutter('update-packages');
 }
 
 Future<Null> runPerfTests() async {

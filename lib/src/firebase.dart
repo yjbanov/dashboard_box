@@ -13,6 +13,12 @@ import 'utils.dart';
 
 const firebaseBaseUrl = 'https://purple-butterfly-3000.firebaseio.com';
 
+Firebase _measurements() {
+  var firebaseToken = config.firebaseFlutterDashboardToken;
+  return new Firebase(Uri.parse("$firebaseBaseUrl/measurements"),
+      auth: firebaseToken);
+}
+
 Future<Null> uploadToFirebase(File measurementJson) async {
   if (!measurementJson.path.endsWith('.json'))
     fail("Error: path must be to a JSON file ending in .json");
@@ -23,9 +29,7 @@ Future<Null> uploadToFirebase(File measurementJson) async {
   var measurementKey = path.basenameWithoutExtension(measurementJson.path);
   print('Uploading $measurementJson to key $measurementKey');
 
-  var firebaseToken = config.firebaseFlutterDashboardToken;
-  var ref = new Firebase(Uri.parse("$firebaseBaseUrl/measurements"),
-      auth: firebaseToken);
+  var ref = _measurements();
 
   await ref
       .child(measurementKey)
@@ -36,4 +40,16 @@ Future<Null> uploadToFirebase(File measurementJson) async {
       .child(measurementKey)
       .child('history')
       .push(JSON.decode(measurementJson.readAsStringSync()));
+}
+
+Future<Map<String, dynamic>> firebaseDownloadCurrent(String measurementKey) async {
+  DataSnapshot snapshot = await _measurements()
+      .child(measurementKey)
+      .child('current')
+      .get();
+
+  if (!snapshot.exists)
+    return null;
+
+  return snapshot.val as Map<String, dynamic>;
 }

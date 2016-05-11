@@ -237,3 +237,57 @@ dynamic/*=T*/ requireConfigProperty(Map<String, dynamic/*<T>*/> map, String prop
 String jsonEncode(dynamic data) {
   return new JsonEncoder.withIndent('  ').convert(data) + '\n';
 }
+
+Future<Null> getFlutter(String revision) async {
+  section('Get Flutter!');
+
+  cd(config.rootDirectory);
+  if (exists(config.flutterDirectory))
+    rrm(config.flutterDirectory);
+
+  await exec('git', ['clone', 'https://github.com/flutter/flutter.git']);
+  await inDirectory(config.flutterDirectory, () async {
+    await exec('git', ['checkout', revision]);
+  });
+  await flutter('config', options: ['--no-analytics']);
+
+  section('flutter doctor');
+  await flutter('doctor');
+
+  section('flutter update-packages');
+  await flutter('update-packages');
+}
+
+void checkNotNull(Object o1, [Object o2 = 1, Object o3 = 1, Object o4 = 1,
+    Object o5 = 1, Object o6 = 1, Object o7 = 1, Object o8 = 1, Object o9 = 1, Object o10 = 1]) {
+  if (o1 == null)
+    throw 'o1 is null';
+
+  if (o2 == null)
+    throw 'o2 is null';
+
+  if (o3 == null)
+    throw 'o3 is null';
+
+  if (o4 == null)
+    throw 'o4 is null';
+
+  if (o5 == null)
+    throw 'o5 is null';
+
+  if (o6 == null)
+    throw 'o6 is null';
+
+  if (o7 == null)
+    throw 'o7 is null';
+
+  if (o8 == null)
+    throw 'o8 is null';
+
+  if (o9 == null)
+    throw 'o9 is null';
+
+  if (o10 == null)
+    throw 'o10 is null';
+
+}
