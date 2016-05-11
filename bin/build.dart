@@ -127,6 +127,7 @@ Future<int> runTest(String testDirectory, String testTarget, String testName) {
     await flutter('drive', options: [
       '--verbose',
       '--no-checked',
+      '--trace-startup', // Enables "endless" timeline event buffering.
       '-t',
       testTarget,
       '-d',
