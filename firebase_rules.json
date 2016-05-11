@@ -12,6 +12,11 @@
         "history": {
           ".indexOn": "timestamp"
         }
+      },
+      "mega_gallery__refresh_time": {
+        "history": {
+          ".indexOn": "timestamp"
+        }
       }
     },
     "users": {

@@ -3,7 +3,6 @@
 // found in the LICENSE file.
 
 import 'dart:async';
-import 'dart:convert';
 import 'dart:io';
 
 import 'package:path/path.dart' as path;
@@ -11,26 +10,26 @@ import 'package:path/path.dart' as path;
 import 'benchmarks.dart';
 import 'utils.dart';
 
-Future<Null> runAnalyzerTests() async {
-  String sdk = await getDartVersion();
-  String commit = await getFlutterRepoCommit();
-  DateTime time = await getFlutterRepoCommitTimestamp(commit);
-
-  Benchmark benchmark = new FlutterAnalyzeBenchmark(time, sdk, commit);
+Future<Null> runAnalyzerTests({
+  String sdk,
+  String commit,
+  DateTime timestamp
+}) async {
+  Benchmark benchmark = new FlutterAnalyzeBenchmark(sdk, commit, timestamp);
   section(benchmark.name);
   await runBenchmark(benchmark, iterations: 3);
 
-  benchmark = new FlutterAnalyzeAppBenchmark(time, sdk, commit);
+  benchmark = new FlutterAnalyzeAppBenchmark(sdk, commit, timestamp);
   section(benchmark.name);
   await runBenchmark(benchmark, iterations: 3);
 }
 
 class FlutterAnalyzeBenchmark extends Benchmark {
-  FlutterAnalyzeBenchmark(this.time, this.sdk, this.commit) : super('flutter analyze --flutter-repo');
+  FlutterAnalyzeBenchmark(this.sdk, this.commit, this.timestamp) : super('flutter analyze --flutter-repo');
 
-  final DateTime time;
   final String sdk;
   final String commit;
+  final DateTime timestamp;
 
   File get benchmarkFile => file(path.join(config.flutterDirectory.path, 'analysis_benchmark.json'));
 
@@ -40,7 +39,7 @@ class FlutterAnalyzeBenchmark extends Benchmark {
     await inDirectory(config.flutterDirectory, () async {
       await flutter('analyze', options: ['--flutter-repo', '--benchmark']);
     });
-    return _patchupResult(benchmarkFile, time, expected: 25.0, sdk: sdk, commit: commit);
+    return addBuildInfo(benchmarkFile, timestamp: timestamp, expected: 25.0, sdk: sdk, commit: commit);
   }
 
   @override
@@ -50,11 +49,11 @@ class FlutterAnalyzeBenchmark extends Benchmark {
 }
 
 class FlutterAnalyzeAppBenchmark extends Benchmark {
-  FlutterAnalyzeAppBenchmark(this.time, this.sdk, this.commit) : super('analysis server mega_gallery');
+  FlutterAnalyzeAppBenchmark(this.sdk, this.commit, this.timestamp) : super('analysis server mega_gallery');
 
-  final DateTime time;
   final String sdk;
   final String commit;
+  final DateTime timestamp;
 
   Directory get megaDir => dir(path.join(config.flutterDirectory.path, 'dev/benchmarks/mega_gallery'));
   File get benchmarkFile => file(path.join(megaDir.path, 'analysis_benchmark.json'));
@@ -71,34 +70,11 @@ class FlutterAnalyzeAppBenchmark extends Benchmark {
     await inDirectory(megaDir, () async {
       await flutter('analyze', options: ['--watch', '--benchmark']);
     });
-    return _patchupResult(benchmarkFile, time, expected: 10.0, sdk: sdk, commit: commit);
+    return addBuildInfo(benchmarkFile, timestamp: timestamp, expected: 10.0, sdk: sdk, commit: commit);
   }
 
   @override
   void markLastRunWasBest(num result, List<num> allRuns) {
     copy(benchmarkFile, config.dataDirectory, name: 'analyzer_server__analysis_time.json');
   }
-}
-
-num _patchupResult(File jsonFile, DateTime time, {
-  double expected,
-  String sdk,
-  String commit
-}) {
-  Map<String, dynamic> json;
-  if (jsonFile.existsSync())
-    json = JSON.decode(jsonFile.readAsStringSync());
-  else
-    json = <String, dynamic>{};
-
-  json['timestamp'] = time.millisecondsSinceEpoch;
-  if (expected != null)
-    json['expected'] = expected;
-  if (sdk != null)
-    json['sdk'] = sdk;
-  if (commit != null)
-    json['commit'] = commit;
-  jsonFile.writeAsStringSync(jsonEncode(json));
-
-  return json['time'];
 }

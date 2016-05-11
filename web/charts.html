@@ -12,14 +12,15 @@
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="scaffolded-by" content="https://github.com/google/stagehand">
+  <meta http-equiv="refresh" content="3600">
 
-  <title>Flutter Dashboard - Analysis</title>
+  <title>Flutter Dashboard</title>
   <link href="styles.css" rel="stylesheet">
   <link href="quantum_theme.css" rel="stylesheet">
   <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
 
   <script src="https://cdn.firebase.com/js/client/2.4.2/firebase.js"></script>
-  <script src="analysis.dart" type="application/dart" defer></script>
+  <script src="charts.dart" type="application/dart" defer></script>
   <script src="packages/browser/dart.js" defer></script>
   <style>
     div.card {
@@ -27,16 +28,17 @@
     }
 
     .card .metric-type {
-      font-size: 40px;
+      font-size: 32px;
       margin-bottom: 20px;
     }
 
     .chart-host {
-      width: 80%;
+      width: 85%;
+      height: 325px;
     }
 
     .chart-legend-host {
-      width: 20%;
+      width: 15%;
     }
 
     .chart-legend-row {
@@ -50,12 +52,21 @@
     .chart-title-wrapper {
       text-align: center;
     }
+
+    .hovercard-title {
+      font-size: 18px;
+    }
+
+    .hovercard-value {
+      white-space: nowrap;
+      margin-bottom: 4px;
+    }
   </style>
 </head>
 
 <body>
   <div style="display: flex">
-    <div class="chart-wrapper card" id="time-series-chart" style="flex: 2">
+    <div class="chart-wrapper card" id="analysis-perf-chart" style="flex: 2">
       <div class="chart-title-wrapper">
         <div class="metric-type">Flutter Analysis Times</div>
       </div>
@@ -64,16 +75,17 @@
         <div class="chart-legend-host"></div>
       </div>
     </div>
-
-    <div class="card" style="flex: 2; visibility: hidden">
-    </div>
   </div>
 
   <div style="display: flex">
-    <div class="card" style="flex: 2; visibility: hidden">
-    </div>
-    <div class="card" style="flex: 2; min-height: 412px; display: flex; justify-content: flex-end">
-      <img src="logo.svg" style="width: 300px; opacity: 0.6; align-self: flex-end">
+    <div class="chart-wrapper card" id="refresh-perf-chart" style="flex: 2">
+      <div class="chart-title-wrapper">
+        <div class="metric-type">Edit Refresh Times</div>
+      </div>
+      <div class="chart-host-wrapper">
+        <div class="chart-host" dir="ltr"></div>
+        <div class="chart-legend-host"></div>
+      </div>
     </div>
   </div>
 
@@ -84,7 +96,7 @@
 
     <div>
       <a href="index.html"><i class="material-icons md-24">view_compact</i></a>
-      <a href="analysis.html"><i class="material-icons md-24">panorama</i></a>
+      <a href="charts.html"><i class="material-icons md-24">panorama</i></a>
     </div>
   </footer>
 </body>

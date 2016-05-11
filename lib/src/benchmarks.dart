@@ -30,13 +30,16 @@ Future<num> runBenchmark(Benchmark benchmark, { int iterations: 1 }) async {
 
     print('');
 
-    num result = await benchmark.run();
+    try {
+      num result = await benchmark.run();
+      allRuns.add(result);
 
-    allRuns.add(result);
-
-    if (minValue == null || result < minValue) {
-      benchmark.markLastRunWasBest(result, allRuns);
-      minValue = result;
+      if (minValue == null || result < minValue) {
+        benchmark.markLastRunWasBest(result, allRuns);
+        minValue = result;
+      }
+    } catch (error) {
+      print('benchmark failed with error: $error');
     }
   }
 

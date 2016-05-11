@@ -9,6 +9,7 @@
 <html>
 <head>
   <title>Flutter Dashboard</title>
+  <meta http-equiv="refresh" content="3600">
   <link href="styles.css" rel="stylesheet">
   <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
 
@@ -61,7 +62,7 @@
 
     <div>
       <a href="index.html"><i class="material-icons md-24">view_compact</i></a>
-      <a href="analysis.html"><i class="material-icons md-24">panorama</i></a>
+      <a href="charts.html"><i class="material-icons md-24">panorama</i></a>
     </div>
   </footer>
 
@@ -74,6 +75,21 @@
           <tr>
             <td class="stats-label">Q2 goal:</td>
             <td class="stats-value"><span class="metric-target"></span>s</td>
+          </tr>
+        </table>
+      </div>
+    </div>
+  </template>
+
+  <template id="__refresh_time_tmpl">
+    <div class="card refresh_time from-firebase">
+      <div class="card-inside">
+        <div class="metric-type">Refresh time <span class="metric-name-wrapper">(<span class="metric-name"></span>)</span></div>
+        <div class="metric-data"><span class="metric-number"></span><span class="metric-unit">ms</span></div>
+        <table class="stats-table">
+          <tr>
+            <td class="stats-label">Q2 goal:</td>
+            <td class="stats-value"><span class="metric-target"></span>ms</td>
           </tr>
         </table>
       </div>
@@ -134,6 +150,5 @@
   -->
   <script src="firebase.js"></script>
   <script src="github.js"></script>
-  <script src="script.js"></script>
 </body>
 </html>
