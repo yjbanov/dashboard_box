@@ -13,9 +13,17 @@ String cwd = Directory.current.path;
 
 Config config;
 
+class BuildFailedError extends Error {
+  BuildFailedError(this.message);
+
+  final String message;
+
+  @override
+  String toString() => message;
+}
+
 void fail(String message) {
-  stderr.writeln(message);
-  exit(1);
+  throw new BuildFailedError(message);
 }
 
 void rm(FileSystemEntity entity) {
