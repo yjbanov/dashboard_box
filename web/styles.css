@@ -13,6 +13,24 @@ body {
   padding: 10px 10px 38px 10px;
 }
 
+body.build-broken {
+  animation-name: flash-broken-build;
+  animation-duration: 4s;
+  animation-iteration-count: infinite;
+}
+
+@keyframes flash-broken-build {
+  0%   {
+    background-color: #eee;
+  }
+  50%  {
+    background-color: #ff8566;
+  }
+  100% {
+    background-color: #eee;
+  }
+}
+
 #container {
   display: flex;
   flex-flow: row wrap;
@@ -181,5 +199,20 @@ td.stats-value {
 }
 
 .buildbot-sad {
-  color: #F44336;
+  fill: #F44336;
+  animation-name: buildstatus-crazy;
+  animation-duration: 4s;
+  animation-iteration-count: infinite;
+}
+
+@keyframes buildstatus-crazy {
+  0% {
+    transform: rotateZ(-30deg) scale(1);
+  }
+  50% {
+    transform: rotateZ(30deg) scale(1.5);
+  }
+  100% {
+    transform: rotateZ(-30deg) scale(1);
+  }
 }
