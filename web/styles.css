@@ -175,3 +175,11 @@ td.stats-value {
   text-align: start;
   padding-left: 8px;
 }
+
+.buildbot-happy {
+  fill: #4CAF50;
+}
+
+.buildbot-sad {
+  color: #F44336;
+}
