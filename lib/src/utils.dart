@@ -185,7 +185,7 @@ class Config {
     this.flutterDirectory = dir('${rootDirectory.path}/flutter');
     this.scriptsDirectory = dir('${rootDirectory.path}/dashboard_box');
 
-    this.buildInfoFile = file('${dataDirectory.path}/build.json');
+    this.dashboardBotStatusFile = file('${dataDirectory.path}/dashboard_bot_status.json');
 
     configFile = file(path.join(scriptsDirectory.path, 'config.json'));
 
@@ -208,7 +208,7 @@ See: https://github.com/flutter/dashboard_box/blob/master/README.md
   Directory flutterDirectory;
   Directory scriptsDirectory;
   File configFile;
-  File buildInfoFile;
+  File dashboardBotStatusFile;
   String androidDeviceId;
   String firebaseFlutterDashboardToken;
 
@@ -221,7 +221,7 @@ backupDirectory: $backupDirectory
 flutterDirectory: $flutterDirectory
 scriptsDirectory: $scriptsDirectory
 configFile: $configFile
-buildInfoFile: $buildInfoFile
+dashboardBotStatusFile: $dashboardBotStatusFile
 androidDeviceId: $androidDeviceId
 '''.trim();
 }

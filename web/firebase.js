@@ -36,7 +36,7 @@
     ref.child('measurements').on("value", function(snapshot) {
       removeExistingBoxes();
       generateBoxes(snapshot.val());
-      updateLastJobRanTime(snapshot.child('build').child('current').val());
+      updateLastJobRanTime(snapshot.child('dashboard_bot_status').child('current').val());
     }, function (errorObject) {
       console.log("The read failed: " + errorObject.code);
     });
@@ -149,7 +149,7 @@
   };
 
   var ignoredMeasurements = [
-    'build',
+    'dashboard_bot_status',
     'stocks__start_up'
   ];
 
