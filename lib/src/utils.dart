@@ -127,10 +127,10 @@ Future<String> eval(String executable, List<String> arguments, {Map<String, Stri
   return output.trimRight();
 }
 
-Future<int> flutter(String command, {List<String> options: const<String>[]}) {
+Future<int> flutter(String command, {List<String> options: const<String>[], bool canFail: false}) {
   List<String> args = [command]
     ..addAll(options);
-  return exec(path.join(config.flutterDirectory.path, 'bin', 'flutter'), args);
+  return exec(path.join(config.flutterDirectory.path, 'bin', 'flutter'), args, canFail: canFail);
 }
 
 String get dartBin => path.join(config.flutterDirectory.path, 'bin/cache/dart-sdk/bin/dart');
