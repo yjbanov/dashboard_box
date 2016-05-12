@@ -4,7 +4,7 @@
   function getBuildStatus(builderName) {
     var urlWithBuilder = url + builderName + '/';
 
-    fetch(urlWithBuilder+'builds').then(function(response){
+    fetch(urlWithBuilder + 'builds').then(function(response){
       if (response.status !== 200) {
         console.error('Error status listing builds: ' + response.status);
         return Promise.reject(new Error(response.statusText));
@@ -16,7 +16,7 @@
       var latest = keys[keys.length-1];
       return Promise.resolve(latest);
     }).then(function(latestBuildNum) {
-      return Promise.resolve(fetch(urlWithBuilder+'builds/'+latestBuildNum));
+      return Promise.resolve(fetch(urlWithBuilder + 'builds/' + latestBuildNum));
     }).then(function(response) {
       if (response.status !== 200) {
         console.error('Error status retrieving build info: ' + response.status);
@@ -30,9 +30,11 @@
       if (isSuccessful) {
         elem.classList.remove('buildbot-sad');
         elem.classList.add('buildbot-happy');
+        document.body.classList.remove('build-broken');
       } else {
         elem.classList.remove('buildbot-happy');
         elem.classList.add('buildbot-sad');
+        document.body.classList.add('build-broken');
       }
     }).catch(function(err) {
       console.error(err);
