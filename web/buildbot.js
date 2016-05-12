@@ -1,10 +1,28 @@
+// Globally visible list of current build statuses encoded as:
+//
+// {
+//   "Mac": true,
+//   "Linux": false
+// }
+var buildStatuses = {};
+
+function allBuildsGreen() {
+  var allGreen = true;
+  for (var builderName in buildStatuses) {
+    if (buildStatuses.hasOwnProperty(builderName)) {
+      allGreen = allGreen && buildStatuses[builderName];
+    }
+  }
+  return allGreen;
+}
+
 (function() {
   const url = 'https://build.chromium.org/p/client.flutter/json/builders/';
 
   function getBuildStatus(builderName) {
     var urlWithBuilder = url + builderName + '/';
 
-    fetch(urlWithBuilder + 'builds').then(function(response){
+    return fetch(urlWithBuilder + 'builds').then(function(response){
       if (response.status !== 200) {
         console.error('Error status listing builds: ' + response.status);
         return Promise.reject(new Error(response.statusText));
@@ -27,24 +45,38 @@
     }).then(function(data) {
       var isSuccessful = data['text'] && data['text'][1] === 'successful';
       var elem = document.querySelector('#buildbot-' + builderName.toLowerCase().replace(' ', '-') + '-status');
+      buildStatuses[builderName] = isSuccessful;
       if (isSuccessful) {
         elem.classList.remove('buildbot-sad');
         elem.classList.add('buildbot-happy');
-        document.body.classList.remove('build-broken');
       } else {
         elem.classList.remove('buildbot-happy');
         elem.classList.add('buildbot-sad');
-        document.body.classList.add('build-broken');
       }
     }).catch(function(err) {
       console.error(err);
     });
-
-    setTimeout(getBuildStatus, 5 * 60 * 1000);
   }
 
-  getBuildStatus('Linux');
-  getBuildStatus('Linux Engine');
-  getBuildStatus('Mac');
-  getBuildStatus('Mac Engine');
+  function getAllBuildStatuses() {
+    Promise.all([
+      getBuildStatus('Linux'),
+      getBuildStatus('Linux Engine'),
+      getBuildStatus('Mac'),
+      getBuildStatus('Mac Engine')
+    ]).then(function() {
+      if (allBuildsGreen()) {
+        document.body.classList.remove('build-broken');
+      } else {
+        document.body.classList.add('build-broken');
+      }
+
+      setTimeout(getAllBuildStatuses, 30 * 1000);
+    }, function() {
+      // Schedule a fetch even if the previous one fails, but wait a little longer
+      setTimeout(getAllBuildStatuses, 60 * 1000);
+    });
+  }
+
+  getAllBuildStatuses();
 })();

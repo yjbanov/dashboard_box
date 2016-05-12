@@ -155,6 +155,15 @@
 
   function updateLastJobRanTime(buildData) {
     var lastJobRanTime = document.querySelector('#last-job-ran-time');
+    var eightHoursInMillis = 8 * 3600 * 1000;
+    var buildAge = Date.now() - Date.parse(buildData.build_timestamp);
+    var buildOutOfDateLabel = document.querySelector('#build-out-of-date');
+    if (allBuildsGreen() && buildAge > eightHoursInMillis) {
+      buildOutOfDateLabel.style.display = 'block';
+    } else {
+      buildOutOfDateLabel.style.display = 'none';
+    }
+
     if (lastJobRanTime) {
       lastJobRanTime.textContent = buildData.build_timestamp;
     }
