@@ -47,7 +47,6 @@ Future<Null> build() async {
     return null;
   }
 
-  String sdk = await getDartVersion();
   String commit = await getFlutterRepoCommit();
   DateTime timestamp = await getFlutterRepoCommitTimestamp(commit);
 
@@ -55,6 +54,8 @@ Future<Null> build() async {
   await prepareDataDirectory();
   await runPerfTests();
   await runStartupTests();
+
+  String sdk = await getDartVersion();
   await runAnalyzerTests(sdk: sdk, commit: commit, timestamp: timestamp);
   await runRefreshTests(sdk: sdk, commit: commit, timestamp: timestamp);
   Map<String, dynamic> buildInfo = await generateBuildInfo(revision);
@@ -96,14 +97,13 @@ Future<Null> prepareDataDirectory() async {
 Future<Null> runPerfTests() async {
   section('Run perf tests');
 
-  await runTest('${config.flutterDirectory.path}/examples/stocks', 'test_driver/scroll_perf.dart', 'stocks_scroll_perf');
   await runTest('${config.flutterDirectory.path}/dev/benchmarks/complex_layout', 'test_driver/scroll_perf.dart', 'complex_layout_scroll_perf');
 }
 
 Future<Null> runStartupTests() async {
   section('Run startup tests');
 
-  await runStartupTest('${config.flutterDirectory.path}/examples/stocks', 'stocks');
+  await runStartupTest('${config.flutterDirectory.path}/examples/flutter_gallery', 'flutter_gallery');
   await runStartupTest('${config.flutterDirectory.path}/dev/benchmarks/complex_layout', 'complex_layout');
 }
 
