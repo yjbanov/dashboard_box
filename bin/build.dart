@@ -145,7 +145,7 @@ Future<Map<String, dynamic>> generateBuildInfo(String revision) async {
     'dart_version': await getDartVersion(),
     'revision': revision,
   };
-  await config.buildInfoFile.writeAsString(jsonEncode(buildInfo));
+  await config.dashboardBotStatusFile.writeAsString(jsonEncode(buildInfo));
   return buildInfo;
 }
 
