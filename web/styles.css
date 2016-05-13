@@ -52,6 +52,7 @@ span.last-updated {
   /* center the inside contents */
   display: flex;
   justify-content: center;
+  overflow: hidden;
 }
 
 .card .metric-data {

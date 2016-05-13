@@ -82,16 +82,15 @@ void _updateChart() {
     ..addAll(repoMeasurements.keys)
     ..addAll(galleryMeasurements.keys)
   )..sort();
-
   List analysisData = times.map((int time) {
     return [time, repoMeasurements[time]?.time, galleryMeasurements[time]?.time];
   }).toList();
-
   _updateAnalysisChart(analysisData);
 
-  List refreshData = [];
-  for (int time in refreshMeasurements.keys.toList()..sort())
-    refreshData = [time, refreshMeasurements[time]];
+  times = refreshMeasurements.keys.toList()..sort();
+  List refreshData = times.map((int time) {
+    return [time, refreshMeasurements[time].time];
+  }).toList();
   _updateRefreshChart(refreshData);
 }
 
@@ -147,7 +146,7 @@ void _updateAnalysisChart([List data = const []]) {
       ChartColumnSpec spec = analysisChartArea.data.columns.elementAt(columnIndex);
       int time = row[0];
       Measurement measurement = (columnIndex == 1 ? repoMeasurements : galleryMeasurements)[time];
-      return _createTooltip(spec, measurement);
+      return _createTooltip(spec, measurement, unitsLabel: 's');
     }));
     analysisChartArea.addChartBehavior(new AxisLabelTooltip());
   }
@@ -182,7 +181,7 @@ void _updateRefreshChart([List data = const []]) {
       ChartColumnSpec spec = refreshChartArea.data.columns.elementAt(columnIndex);
       int time = row[0];
       Measurement measurement = refreshMeasurements[time];
-      _createTooltip(spec, measurement);
+      return _createTooltip(spec, measurement, unitsLabel: 'ms');
     }));
     refreshChartArea.addChartBehavior(new AxisLabelTooltip());
   }
@@ -190,19 +189,24 @@ void _updateRefreshChart([List data = const []]) {
   refreshChartArea.draw();
 }
 
-String _printDurationVal(num val) {
+String _printDurationValSeconds(num val) {
   if (val == null) return '';
   return val.toStringAsFixed(1) + 's';
 }
 
-Element _createTooltip(ChartColumnSpec spec, Measurement measurement) {
+String _printDurationValMillis(num val) {
+  if (val == null) return '';
+  return _formatWithThousandsSeparator(val.toInt()) + 'ms';
+}
+
+Element _createTooltip(ChartColumnSpec spec, Measurement measurement, { String unitsLabel }) {
   Element element = div('', className: 'hovercard-single');
 
   if (measurement == null) {
     element.text = 'No data';
   } else {
     element.children.add(div(spec.label, className: 'hovercard-title'));
-    element.children.add(div('time: ${measurement.time}s', className: 'hovercard-value'));
+    element.children.add(div('time: ${measurement.time}$unitsLabel', className: 'hovercard-value'));
     element.children.add(div('at: ${measurement.date}', className: 'hovercard-value'));
     if (measurement.commit != null)
       element.children.add(div('commit: ${measurement.commit.substring(0, 10)}', className: 'hovercard-value'));
@@ -219,12 +223,12 @@ List _analysisColumnSpecs = [
   new ChartColumnSpec(
     label: 'flutter_repo',
     type: ChartColumnSpec.TYPE_NUMBER,
-    formatter: _printDurationVal
+    formatter: _printDurationValSeconds
   ),
   new ChartColumnSpec(
     label: 'mega_gallery',
     type: ChartColumnSpec.TYPE_NUMBER,
-    formatter: _printDurationVal
+    formatter: _printDurationValSeconds
   )
 ];
 
@@ -236,7 +240,7 @@ List _refreshColumnSpecs = [
   new ChartColumnSpec(
     label: 'Refresh',
     type: ChartColumnSpec.TYPE_NUMBER,
-    formatter: _printDurationVal
+    formatter: _printDurationValMillis
   )
 ];
 
@@ -253,8 +257,8 @@ List _getPlaceholderDataRefresh() {
   DateTime now = new DateTime.now();
 
   return [
-    [now.subtract(new Duration(days: 30)).millisecondsSinceEpoch, 0.0],
-    [now.millisecondsSinceEpoch, 0.0],
+    [now.subtract(new Duration(days: 30)).millisecondsSinceEpoch, 0],
+    [now.millisecondsSinceEpoch, 0],
   ];
 }
 
@@ -263,4 +267,11 @@ DivElement div(String text, { String className }) {
   if (className != null)
     element.className = className;
   return element;
+}
+
+String _formatWithThousandsSeparator(int value) {
+  String str = value.toString();
+  if (str.length > 3)
+    str = str.substring(0, str.length - 3) + ',' + str.substring(str.length - 3);
+  return str;
 }

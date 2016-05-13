@@ -22,7 +22,7 @@ Future<String> getLatestGreenRevision() async {
 
   // Keep fetching builds until we find a build that was green both on Mac
   // and Linux buildbots.
-  while(greenLinuxRevisions.intersection(greenMacRevisions).isEmpty &&
+  while (greenLinuxRevisions.intersection(greenMacRevisions).isEmpty &&
       linuxBuildNumbers.isNotEmpty &&
       macBuildNumbers.isNotEmpty) {
     BuildInfo linuxBuild = await linuxBuilder.getBuild(linuxBuildNumbers.removeLast());
