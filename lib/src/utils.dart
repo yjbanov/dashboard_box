@@ -304,7 +304,7 @@ void checkNotNull(Object o1, [Object o2 = 1, Object o3 = 1, Object o4 = 1,
 /// If the file contains information about how long the benchmark took to run
 /// (a `time` field), then return that info.
 num addBuildInfo(File jsonFile, {
-  double expected,
+  num expected,
   String sdk,
   String commit,
   DateTime timestamp

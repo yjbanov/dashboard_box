@@ -44,7 +44,7 @@ class EditRefreshBenchmark extends Benchmark {
     });
     if (exitCode != 0)
       return new Future.error(exitCode);
-    return addBuildInfo(benchmarkFile, timestamp: timestamp, expected: 10.0, sdk: sdk, commit: commit);
+    return addBuildInfo(benchmarkFile, timestamp: timestamp, expected: 200, sdk: sdk, commit: commit);
   }
 
   @override
