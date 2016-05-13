@@ -56,18 +56,16 @@ span.last-updated {
 }
 
 .card .metric-data {
-  font-size: 120px;
-  margin-bottom: 28px;
+  font-size: 90px;
+  margin-bottom: 15px;
 }
 
 .card .metric-type {
-  font-size: 48px;
-  margin-bottom: 28px;
+  font-size: 23px;
 }
 
 .card .metric-name-wrapper {
   color: rgba(0, 0, 0, 0.54);
-  display: block;
 }
 
 .card .metric-unit {
@@ -184,12 +182,19 @@ table.stats-table {
   width: 100%;
 }
 
+table.stats-table td {
+  text-align: center;
+}
+
 td.stats-label {
   width: 50%;
   text-align: end;
+  color: gray;
+  font-size: small;
 }
 
 td.stats-value {
+  font-weight: bold;
   width: 50%;
   text-align: start;
   padding-left: 8px;

@@ -145,6 +145,36 @@
       });
 
       document.querySelector('#container').appendChild(clone);
+    },
+
+    '__transition_perf': function(measurementType, measurementName, data) {
+      let clone = _cloneTemplate(measurementType);
+      if (clone == null) return;
+
+      let title = _getTitleForTemplate(measurementType, measurementName);
+      clone.querySelector('.metric-name').textContent = title;
+      let chart = clone.querySelector('.frames');
+
+      for (let screenName in data) {
+        if (data.hasOwnProperty(screenName)) {
+          let durations = data[screenName];
+          durations.forEach(function(duration) {
+            let div;
+            if (duration > 300000) {
+              div = _parseHtml(`<div class="terrible-frame frame" style="height: ${ 24000 / 2500 }px"></div>`);
+            } else if (duration > 100000) {
+              div = _parseHtml(`<div class="bad-frame frame" style="height: ${ duration / 2500 }px"></div>`);
+            } else {
+              div = _parseHtml(`<div class="good-frame frame" style="height: ${ duration / 2500 }px"></div>`);
+            }
+            chart.appendChild(div);
+          });
+          // Add padding between screens
+          chart.appendChild(_parseHtml('<div style="width: 5px"></div>'));
+        }
+      }
+
+      document.querySelector('#container').appendChild(clone);
     }
   };
 
@@ -176,7 +206,7 @@
             .substring(measurementName.indexOf('__'), measurementName.length);
         var generator = generators[measurementType];
         if (generator === undefined) {
-          console.error('Did not find generator for ' + measurementName +
+          console.error('WARNING: Did not find generator for ' + measurementName +
               ' of type ' + measurementType);
           continue;
         }
