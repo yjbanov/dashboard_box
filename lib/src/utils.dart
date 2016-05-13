@@ -179,6 +179,18 @@ void cd(dynamic directory) {
 }
 
 class Config {
+  Config.fromProperties({
+    this.rootDirectory,
+    this.dataDirectory,
+    this.backupDirectory,
+    this.flutterDirectory,
+    this.scriptsDirectory,
+    this.configFile,
+    this.dashboardBotStatusFile,
+    this.androidDeviceId,
+    this.firebaseFlutterDashboardToken
+  });
+
   Config(String rootPath) : rootDirectory = dir(rootPath) {
     this.dataDirectory = dir('${rootDirectory.path}/data');
     this.backupDirectory = dir('${rootDirectory.path}/backup');

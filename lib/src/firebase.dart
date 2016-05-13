@@ -14,7 +14,7 @@ import 'utils.dart';
 const firebaseBaseUrl = 'https://purple-butterfly-3000.firebaseio.com';
 
 Firebase _measurements() {
-  var firebaseToken = config.firebaseFlutterDashboardToken;
+  String firebaseToken = config.firebaseFlutterDashboardToken;
   return new Firebase(Uri.parse("$firebaseBaseUrl/measurements"),
       auth: firebaseToken);
 }
@@ -26,10 +26,10 @@ Future<Null> uploadToFirebase(File measurementJson) async {
   if (!exists(measurementJson))
     fail("Error: $measurementJson not found");
 
-  var measurementKey = path.basenameWithoutExtension(measurementJson.path);
+  String measurementKey = path.basenameWithoutExtension(measurementJson.path);
   print('Uploading $measurementJson to key $measurementKey');
 
-  var ref = _measurements();
+  Firebase ref = _measurements();
 
   await ref
       .child(measurementKey)
@@ -40,6 +40,13 @@ Future<Null> uploadToFirebase(File measurementJson) async {
       .child(measurementKey)
       .child('history')
       .push(JSON.decode(measurementJson.readAsStringSync()));
+}
+
+Future<Null> uploadMeasurementToFirebase(String measurementKey, dynamic jsonData) async {
+  Firebase ref = _measurements().child(measurementKey);
+  print('Uploading ${ref.key}:\n${jsonData}');
+  await ref.child('current').set(jsonData);
+  await ref.child('history').push(jsonData);
 }
 
 Future<Map<String, dynamic>> firebaseDownloadCurrent(String measurementKey) async {

@@ -127,16 +127,14 @@
 
         <table class="stats-table">
           <tr>
-            <td class="stats-label">To framework init:</td>
             <td class="stats-value"><span class="time-to-framework-init"></span>ms</td>
-          </tr>
-          <tr>
-            <td class="stats-label">After framework init:</td>
             <td class="stats-value"><span class="time-after-init-to-first-frame"></span>ms</td>
+            <td class="stats-value"><span class="metric-target">600</span>ms</td>
           </tr>
           <tr>
-            <td class="stats-label">Q2 goal:</td>
-            <td class="stats-value"><span class="metric-target">600</span>ms</td>
+            <td class="stats-label">to framework</td>
+            <td class="stats-label">after framework</td>
+            <td class="stats-label">Q2 goal</td>
           </tr>
         </table>
       </div>
@@ -163,6 +161,21 @@
               <div class="frame-60FPS-indicator" style="height: 80px">16ms</div>
             </div>
           </div>
+        </div>
+      </div>
+    </div>
+  </template>
+
+  <template id="__transition_perf_tmpl">
+    <div class="card from-firebase">
+      <div class="card-inside">
+        <div class="metric-type">
+          Gallery Transitions
+          <span class="metric-name-wrapper">(<span class="metric-name"></span>)</span>
+        </div>
+        <div class="frames" style="height: 120px; margin-top: 15px;">
+          <div class="frame-budget-indicator" style="height: 40px">100ms</div>
+          <div class="frame-60FPS-indicator" style="height: 80px">200ms</div>
         </div>
       </div>
     </div>

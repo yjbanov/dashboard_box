@@ -1,4 +1,4 @@
-// Copyright 2015 The Chromium Authors. All rights reserved.
+// Copyright 2016 The Chromium Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
@@ -12,6 +12,7 @@ import 'package:stack_trace/stack_trace.dart';
 import 'package:dashboard_box/src/analysis.dart';
 import 'package:dashboard_box/src/buildbot.dart';
 import 'package:dashboard_box/src/firebase.dart';
+import 'package:dashboard_box/src/gallery.dart';
 import 'package:dashboard_box/src/refresh.dart';
 import 'package:dashboard_box/src/utils.dart';
 
@@ -54,6 +55,7 @@ Future<Null> build() async {
   await prepareDataDirectory();
   await runPerfTests();
   await runStartupTests();
+  await runGalleryTests();
 
   String sdk = await getDartVersion();
   await runAnalyzerTests(sdk: sdk, commit: commit, timestamp: timestamp);
