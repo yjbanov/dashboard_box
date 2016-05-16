@@ -3,6 +3,7 @@
 // found in the LICENSE file.
 
 import 'dart:async';
+import 'dart:convert';
 import 'dart:io';
 
 import 'utils.dart';
@@ -22,6 +23,15 @@ Future<Null> runGalleryTests() async {
     ]);
   });
 
-  copy(file('${galleryDirectory.path}/build/transition_durations.timeline.json'), config.dataDirectory,
-    name: 'flutter_gallery__transtition_perf.json');
+  // Route paths contains slashes, which Firebase doesn't accept in keys, so we
+  // remove them.
+  Map<String, dynamic> original = JSON.decode(file('${galleryDirectory.path}/build/transition_durations.timeline.json').readAsStringSync());
+  Map<String, dynamic> clean = new Map.fromIterable(
+    original.keys,
+    key: (String key) => key.replaceAll('/', ''),
+    value: (String key) => original[key]
+  );
+
+  file('${config.dataDirectory.path}/flutter_gallery__transtition_perf.json')
+    .writeAsStringSync(JSON.encode(clean));
 }
