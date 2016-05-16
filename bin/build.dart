@@ -12,7 +12,7 @@ import 'package:stack_trace/stack_trace.dart';
 import 'package:dashboard_box/src/analysis.dart';
 import 'package:dashboard_box/src/buildbot.dart';
 import 'package:dashboard_box/src/firebase.dart';
-//import 'package:dashboard_box/src/gallery.dart';
+import 'package:dashboard_box/src/gallery.dart';
 import 'package:dashboard_box/src/refresh.dart';
 import 'package:dashboard_box/src/utils.dart';
 
@@ -61,7 +61,7 @@ Future<Null> build() async {
 
   await runPerfTests();
   await runStartupTests();
-  // await runGalleryTests();
+  await runGalleryTests();
   await runAnalyzerTests(sdk: sdk, commit: commit, timestamp: timestamp);
   await runRefreshTests(sdk: sdk, commit: commit, timestamp: timestamp);
 
