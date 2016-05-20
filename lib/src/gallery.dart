@@ -14,7 +14,7 @@ Future<Null> runGalleryTests() async {
     await pub('get');
     await flutter('drive', options: [
       '--verbose',
-      '--no-checked',
+      '--profile',
       '--trace-startup',
       '-t',
       'test_driver/transitions_perf.dart',

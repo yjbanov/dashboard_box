@@ -118,7 +118,7 @@ Future<int> runTest(String testDirectory, String testTarget, String testName) {
     await pub('get');
     await flutter('drive', options: [
       '--verbose',
-      '--no-checked',
+      '--profile',
       '--trace-startup', // Enables "endless" timeline event buffering.
       '-t',
       testTarget,
@@ -135,7 +135,7 @@ Future<int> runStartupTest(String testDirectory, String testName) {
     await pub('get');
     await flutter('run', options: [
       '--verbose',
-      '--no-checked',
+      '--profile',
       '--trace-startup',
       '-d',
       config.androidDeviceId
