@@ -3,6 +3,9 @@
 # Fast fail the script on failures.
 set -e
 
+# Echo commands as they are run.
+set -x
+
 # Check the project.
 pub global activate tuneup
 pub global run tuneup check
@@ -15,9 +18,14 @@ pub build
 
 if [ "$TRAVIS_PULL_REQUEST" = "false" ]; then
   if [ "$TRAVIS_BRANCH" = "master" ]; then
-    echo "Deploying to Firebase."
+    echo "Installing firebase-tools."
 
     npm install -g firebase-tools
-    firebase deploy --token "$FIREBASE_TOKEN" -f purple-butterfly-3000
+
+    echo "Using firebase version `firebase --version`"
+
+    echo "Deploying to Firebase."
+
+    firebase -P purple-butterfly-3000 --token "$FIREBASE_TOKEN" deploy
   fi
 fi
