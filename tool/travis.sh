@@ -4,7 +4,7 @@
 set -e
 
 # Echo commands as they are run.
-set -x
+set -v
 
 # Check the project.
 pub global activate tuneup
