@@ -59,11 +59,15 @@ Future<Null> build() async {
   print('sdk      : $sdk');
   await prepareDataDirectory();
 
-  await runPerfTests();
-  await runStartupTests();
-  await runGalleryTests();
-  await runAnalyzerTests(sdk: sdk, commit: commit, timestamp: timestamp);
-  await runRefreshTests(sdk: sdk, commit: commit, timestamp: timestamp);
+  await runBenchmark(runPerfTests, 'runPerfTests');
+  await runBenchmark(runStartupTests, 'runStartupTests');
+  await runBenchmark(runGalleryTests, 'runGalleryTests');
+  await runBenchmark(() {
+    return runAnalyzerTests(sdk: sdk, commit: commit, timestamp: timestamp);
+  }, 'runAnalyzerTests');
+  await runBenchmark(() {
+    return runRefreshTests(sdk: sdk, commit: commit, timestamp: timestamp);
+  }, 'runRefreshTests');
 
   Map<String, dynamic> buildInfo = await generateBuildInfo(revision);
   await uploadDataToFirebase();
@@ -98,6 +102,15 @@ Future<Null> prepareDataDirectory() async {
   }
 
   mkdir(config.dataDirectory);
+}
+
+Future<Null> runBenchmark(dynamic closure(), String name) async {
+  try {
+    await closure();
+  } catch (error) {
+    print('');
+    print('$name failed: $error');
+  }
 }
 
 Future<Null> runPerfTests() async {
