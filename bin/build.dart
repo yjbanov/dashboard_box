@@ -118,7 +118,8 @@ Future<int> runTest(String testDirectory, String testTarget, String testName) {
     await pub('get');
     await flutter('drive', options: [
       '--verbose',
-      '--profile',
+      // TODO(yjbanov): switch to --profile when ready (http://dartbug.com/26550)
+      '--debug',
       '--trace-startup', // Enables "endless" timeline event buffering.
       '-t',
       testTarget,
@@ -135,7 +136,8 @@ Future<int> runStartupTest(String testDirectory, String testName) {
     await pub('get');
     await flutter('run', options: [
       '--verbose',
-      '--profile',
+      // TODO(yjbanov): switch to --profile when ready (http://dartbug.com/26550)
+      '--debug',
       '--trace-startup',
       '-d',
       config.androidDeviceId

@@ -14,7 +14,8 @@ Future<Null> runGalleryTests() async {
     await pub('get');
     await flutter('drive', options: [
       '--verbose',
-      '--profile',
+      // TODO(yjbanov): switch to --profile when ready (http://dartbug.com/26550)
+      '--debug',
       '--trace-startup',
       '-t',
       'test_driver/transitions_perf.dart',
