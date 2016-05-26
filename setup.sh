@@ -15,6 +15,19 @@ function absolute_path {
 
 ROOT_DIRECTORY=$(dirname "$(dirname $(absolute_path "$0"))")
 SCRIPT_DIRECTORY=${ROOT_DIRECTORY}/dashboard_box
+GSUTIL=${GSUTIL:-"/Users/$USER/google-cloud-sdk/bin/gsutil"}
 
 (cd $SCRIPT_DIRECTORY; git pull)
+
+set +e
 (cd $ROOT_DIRECTORY; ROOT_DIRECTORY=$ROOT_DIRECTORY $SCRIPT_DIRECTORY/run.sh)
+set -e
+
+# Upload logs to Google Cloud Storage
+
+pushd $ROOT_DIRECTORY/flutter
+SHA=$(git rev-parse HEAD)
+popd
+
+$GSUTIL cp /tmp/flutter.dashboard.stdout.txt gs://flutter-dashboard/$SHA/stdout.txt
+$GSUTIL cp /tmp/flutter.dashboard.stderr.txt gs://flutter-dashboard/$SHA/stderr.txt
