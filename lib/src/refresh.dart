@@ -8,16 +8,22 @@ import 'dart:io';
 import 'package:path/path.dart' as path;
 
 import 'benchmarks.dart';
+import 'framework.dart';
 import 'utils.dart';
 
-Future<Null> runRefreshTests({
+Task createRefreshTest({
   String sdk,
   String commit,
   DateTime timestamp
-}) async {
-  Benchmark benchmark = new EditRefreshBenchmark(sdk, commit, timestamp);
-  section(benchmark.name);
-  await runBenchmark(benchmark, iterations: 3);
+}) {
+  return new Task(
+    'edit_refresh',
+    (_) async {
+      Benchmark benchmark = new EditRefreshBenchmark(sdk, commit, timestamp);
+      section(benchmark.name);
+      await runBenchmark(benchmark, iterations: 3);
+    }
+  );
 }
 
 class EditRefreshBenchmark extends Benchmark {

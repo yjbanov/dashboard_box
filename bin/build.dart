@@ -12,7 +12,9 @@ import 'package:stack_trace/stack_trace.dart';
 import 'package:dashboard_box/src/analysis.dart';
 import 'package:dashboard_box/src/buildbot.dart';
 import 'package:dashboard_box/src/firebase.dart';
+import 'package:dashboard_box/src/framework.dart';
 import 'package:dashboard_box/src/gallery.dart';
+import 'package:dashboard_box/src/perf_tests.dart';
 import 'package:dashboard_box/src/refresh.dart';
 import 'package:dashboard_box/src/utils.dart';
 
@@ -59,17 +61,23 @@ Future<Null> build() async {
   print('sdk      : $sdk');
   await prepareDataDirectory();
 
-  await runBenchmark(runPerfTests, 'runPerfTests');
-  await runBenchmark(runStartupTests, 'runStartupTests');
-  await runBenchmark(runGalleryTests, 'runGalleryTests');
-  await runBenchmark(() {
-    return runAnalyzerTests(sdk: sdk, commit: commit, timestamp: timestamp);
-  }, 'runAnalyzerTests');
-  await runBenchmark(() {
-    return runRefreshTests(sdk: sdk, commit: commit, timestamp: timestamp);
-  }, 'runRefreshTests');
+  TaskRunner runner = new TaskRunner()
+    ..enqueueAll(createPerfTests())
+    ..enqueueAll(createStartupTests())
+    ..enqueue(createGalleryTest())
+    ..enqueueAll(createAnalyzerTests(sdk: sdk, commit: commit, timestamp: timestamp))
+    ..enqueue(createRefreshTest());
+
+  BuildResult result = await runner.run();
+  section('Build results');
+  print('Ran ${result.results.length} tasks (${result.failedTaskCount} failed):');
+  for (TaskResult taskResult in result.results)
+    print('  ${taskResult.task.name} ${taskResult.succeeded ? "succeeded" : "failed"}');
 
   Map<String, dynamic> buildInfo = await generateBuildInfo(revision);
+  buildInfo['success'] = result.succeeded;
+  buildInfo['failed_task_count'] = result.failedTaskCount;
+
   await uploadDataToFirebase();
   markAsRan(revision, buildInfo);
 }
@@ -102,62 +110,6 @@ Future<Null> prepareDataDirectory() async {
   }
 
   mkdir(config.dataDirectory);
-}
-
-Future<Null> runBenchmark(dynamic closure(), String name) async {
-  try {
-    await closure();
-  } catch (error) {
-    print('');
-    print('$name failed: $error');
-  }
-}
-
-Future<Null> runPerfTests() async {
-  section('Run perf tests');
-
-  await runTest('${config.flutterDirectory.path}/dev/benchmarks/complex_layout', 'test_driver/scroll_perf.dart', 'complex_layout_scroll_perf');
-}
-
-Future<Null> runStartupTests() async {
-  section('Run startup tests');
-
-  await runStartupTest('${config.flutterDirectory.path}/examples/flutter_gallery', 'flutter_gallery');
-  await runStartupTest('${config.flutterDirectory.path}/dev/benchmarks/complex_layout', 'complex_layout');
-}
-
-Future<int> runTest(String testDirectory, String testTarget, String testName) {
-  return inDirectory(testDirectory, () async {
-    await pub('get');
-    await flutter('drive', options: [
-      '--verbose',
-      // TODO(yjbanov): switch to --profile when ready (http://dartbug.com/26550)
-      '--debug',
-      '--trace-startup', // Enables "endless" timeline event buffering.
-      '-t',
-      testTarget,
-      '-d',
-      config.androidDeviceId
-    ]);
-    copy(file('$testDirectory/build/${testName}.timeline_summary.json'),
-        config.dataDirectory, name: '${testName}__timeline_summary.json');
-  });
-}
-
-Future<int> runStartupTest(String testDirectory, String testName) {
-  return inDirectory(testDirectory, () async {
-    await pub('get');
-    await flutter('run', options: [
-      '--verbose',
-      // TODO(yjbanov): switch to --profile when ready (http://dartbug.com/26550)
-      '--debug',
-      '--trace-startup',
-      '-d',
-      config.androidDeviceId
-    ]);
-    copy(file('$testDirectory/build/start_up_info.json'),
-        config.dataDirectory, name: '${testName}__start_up.json');
-  });
 }
 
 Future<Map<String, dynamic>> generateBuildInfo(String revision) async {
