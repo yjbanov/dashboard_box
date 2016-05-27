@@ -161,7 +161,7 @@
           durations.forEach(function(duration) {
             let div;
             if (duration > 300000) {
-              div = _parseHtml(`<div class="terrible-frame frame" style="height: ${ 24000 / 2500 }px"></div>`);
+              div = _parseHtml(`<div class="terrible-frame frame" style="height: ${ 300000 / 2500 }px"></div>`);
             } else if (duration > 100000) {
               div = _parseHtml(`<div class="bad-frame frame" style="height: ${ duration / 2500 }px"></div>`);
             } else {
