@@ -10,7 +10,7 @@ import 'utils.dart';
 
 Task createGalleryTest() {
   return new Task(
-    'flutter_gallery__transtition_perf',
+    'flutter_gallery__transition_perf',
     (_) async {
       Directory galleryDirectory = dir('${config.flutterDirectory.path}/examples/flutter_gallery');
       await inDirectory(galleryDirectory, () async {
@@ -36,7 +36,7 @@ Task createGalleryTest() {
         value: (String key) => original[key]
       );
 
-      file('${config.dataDirectory.path}/flutter_gallery__transtition_perf.json')
+      file('${config.dataDirectory.path}/flutter_gallery__transition_perf.json')
         .writeAsStringSync(JSON.encode(clean));
     }
   );

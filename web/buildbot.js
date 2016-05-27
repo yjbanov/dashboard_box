@@ -10,7 +10,7 @@ function allBuildsGreen() {
   var allGreen = true;
   for (var builderName in buildStatuses) {
     if (buildStatuses.hasOwnProperty(builderName)) {
-      allGreen = allGreen && buildStatuses[builderName];
+      allGreen = allGreen && buildStatuses[builderName] === true;
     }
   }
   return allGreen;
@@ -58,7 +58,19 @@ function allBuildsGreen() {
     });
   }
 
-  function getAllBuildStatuses() {
+  function subscribeToDashboardStatus() {
+    buildStatuses['dashboard'] = null;
+    whenFirebaseReady.then(function(ref) {
+      ref.child('measurements').on("value", function(snapshot) {
+        var status = snapshot.child('dashboard_bot_status').child('current').val();
+        buildStatuses['dashboard'] = (status.success === true);
+      }, function (errorObject) {
+        console.log("The read failed: " + errorObject.code);
+      });
+    });
+  }
+
+  function refreshAllBuildStatuses() {
     Promise.all([
       getBuildStatus('Linux'),
       getBuildStatus('Linux Engine'),
@@ -71,12 +83,29 @@ function allBuildsGreen() {
         document.body.classList.add('build-broken');
       }
 
-      setTimeout(getAllBuildStatuses, 30 * 1000);
+      var elem = document.querySelector('#dashboard-status');
+      elem.classList.remove('buildbot-sad');
+      if (allBuildsGreen()) {
+        // Show dashboard status green iff it and all other builds are green.
+        elem.style.color = 'green';
+      } else if (buildStatuses['dashboard'] === false) {
+        // The dashboard is explicitly broken. Go into the broken build mode.
+        elem.style.color = 'red';
+        elem.classList.add('buildbot-sad');
+      } else {
+        // If one of the buildbots is red the dashboard status is irrelevant.
+        // Showing it red won't add any useful information, and showing it green
+        // is misleading.
+        elem.style.color = 'gray';
+      }
+
+      setTimeout(refreshAllBuildStatuses, 10 * 1000);
     }, function() {
       // Schedule a fetch even if the previous one fails, but wait a little longer
-      setTimeout(getAllBuildStatuses, 60 * 1000);
+      setTimeout(refreshAllBuildStatuses, 60 * 1000);
     });
   }
 
-  getAllBuildStatuses();
+  subscribeToDashboardStatus();
+  refreshAllBuildStatuses();
 })();

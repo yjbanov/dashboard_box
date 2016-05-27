@@ -73,6 +73,18 @@ span.last-updated {
   font-size: 72px;
 }
 
+.card .build-status-card {
+  font-size: 60px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 25px;
+}
+
+.card-inside {
+  width: 100%;
+}
+
 footer {
   position: fixed;
   bottom: 0;
