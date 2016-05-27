@@ -1,8 +1,7 @@
-(function() {
-  var ref = new Firebase("https://purple-butterfly-3000.firebaseio.com/");
-  ref.onAuth(authDataCallback);
+var ref = new Firebase("https://purple-butterfly-3000.firebaseio.com/");
 
-  function authDataCallback(authData) {
+var whenFirebaseReady = new Promise(function(resolve, reject) {
+  ref.onAuth(function(authData) {
     if (authData) {
       console.log("User " + authData.uid + " is logged in with " +
         authData.provider + " and has displayName '" +
@@ -15,14 +14,21 @@
         name: authData.google.displayName,
         email: authData.google.email || 'undefined'
       }).then(function(snapshot) {
-        getData();
+        resolve(ref);
       }, function(error) {
         console.error(error);
       });
     } else {
       console.log("User is logged out");
     }
-  }
+  });
+});
+
+(function() {
+  whenFirebaseReady.then(function() {
+    console.log('Connected to Firebase');
+    getData();
+  });
 
   function authHandler(error, authData) {
     if (error) {

@@ -74,9 +74,7 @@ Future<Null> build() async {
   for (TaskResult taskResult in result.results)
     print('  ${taskResult.task.name} ${taskResult.succeeded ? "succeeded" : "failed"}');
 
-  Map<String, dynamic> buildInfo = await generateBuildInfo(revision);
-  buildInfo['success'] = result.succeeded;
-  buildInfo['failed_task_count'] = result.failedTaskCount;
+  Map<String, dynamic> buildInfo = await generateBuildInfo(revision, result);
 
   await uploadDataToFirebase();
   markAsRan(revision, buildInfo);
@@ -112,11 +110,13 @@ Future<Null> prepareDataDirectory() async {
   mkdir(config.dataDirectory);
 }
 
-Future<Map<String, dynamic>> generateBuildInfo(String revision) async {
+Future<Map<String, dynamic>> generateBuildInfo(String revision, BuildResult result) async {
   Map<String, dynamic> buildInfo = <String, dynamic>{
     'build_timestamp': '${new DateTime.now()}',
     'dart_version': await getDartVersion(),
     'revision': revision,
+    'success': result.succeeded,
+    'failed_task_count': result.failedTaskCount,
   };
   await config.dashboardBotStatusFile.writeAsString(jsonEncode(buildInfo));
   return buildInfo;
