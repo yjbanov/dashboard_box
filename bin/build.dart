@@ -71,9 +71,8 @@ Future<Null> build() async {
   BuildResult result = await runner.run();
   section('Build results');
   print('Ran ${result.results.length} tasks (${result.failedTaskCount} failed):');
-  for (TaskResult taskResult in result.results) {
+  for (TaskResult taskResult in result.results)
     print('  ${taskResult.task.name} ${taskResult.succeeded ? "succeeded" : "failed"}');
-  }
 
   Map<String, dynamic> buildInfo = await generateBuildInfo(revision);
   buildInfo['success'] = result.succeeded;
