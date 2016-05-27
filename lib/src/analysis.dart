@@ -8,20 +8,32 @@ import 'dart:io';
 import 'package:path/path.dart' as path;
 
 import 'benchmarks.dart';
+import 'framework.dart';
 import 'utils.dart';
 
-Future<Null> runAnalyzerTests({
+List<Task> createAnalyzerTests({
   String sdk,
   String commit,
   DateTime timestamp
-}) async {
-  Benchmark benchmark = new FlutterAnalyzeBenchmark(sdk, commit, timestamp);
-  section(benchmark.name);
-  await runBenchmark(benchmark, iterations: 3);
-
-  benchmark = new FlutterAnalyzeAppBenchmark(sdk, commit, timestamp);
-  section(benchmark.name);
-  await runBenchmark(benchmark, iterations: 3);
+}) {
+  return <Task>[
+    new Task(
+      'analyzer_cli',
+      (_) async {
+        Benchmark benchmark = new FlutterAnalyzeBenchmark(sdk, commit, timestamp);
+        section(benchmark.name);
+        await runBenchmark(benchmark, iterations: 3);
+      }
+    ),
+    new Task(
+      'analyzer_server',
+      (_) async {
+        Benchmark benchmark = new FlutterAnalyzeAppBenchmark(sdk, commit, timestamp);
+        section(benchmark.name);
+        await runBenchmark(benchmark, iterations: 3);
+      }
+    ),
+  ];
 }
 
 class FlutterAnalyzeBenchmark extends Benchmark {
