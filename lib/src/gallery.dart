@@ -36,8 +36,7 @@ Task createGalleryTest() {
         value: (String key) => original[key]
       );
 
-      file('${config.dataDirectory.path}/flutter_gallery__transition_perf.json')
-        .writeAsStringSync(JSON.encode(clean));
+      return new TaskResultData(clean);
     }
   );
 }

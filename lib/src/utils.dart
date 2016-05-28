@@ -86,12 +86,6 @@ Future<String> getDartVersion() async {
   return version.replaceAll('"', "'");
 }
 
-Future<String> getFlutterRepoCommit() {
-  return inDirectory(config.flutterDirectory, () {
-    return eval('git', ['rev-parse', 'HEAD']);
-  });
-}
-
 Future<DateTime> getFlutterRepoCommitTimestamp(String commit) {
   // git show -s --format=%at 4b546df7f0b3858aaaa56c4079e5be1ba91fbb65
   return inDirectory(config.flutterDirectory, () async {

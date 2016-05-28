@@ -10,28 +10,28 @@ import 'utils.dart';
 List<Task> createPerfTests() {
   return <Task>[
     new Task(
-      'complex_layout_scroll_perf',
+      'complex_layout_scroll_perf__timeline_summary',
       (Task task) async {
-        await runTest('${config.flutterDirectory.path}/dev/benchmarks/complex_layout', 'test_driver/scroll_perf.dart', task.name);
+        await _runPerfTest('${config.flutterDirectory.path}/dev/benchmarks/complex_layout', 'test_driver/scroll_perf.dart', task.name);
       }
     )
   ];
 }
 
 List<Task> createStartupTests() => <Task>[
-  createStartupTest('${config.flutterDirectory.path}/examples/flutter_gallery', 'flutter_gallery'),
-  createStartupTest('${config.flutterDirectory.path}/dev/benchmarks/complex_layout', 'complex_layout'),
+  _createStartupTest('${config.flutterDirectory.path}/examples/flutter_gallery', 'flutter_gallery'),
+  _createStartupTest('${config.flutterDirectory.path}/dev/benchmarks/complex_layout', 'complex_layout'),
 ];
 
-Task createStartupTest(String testDirectory, String testName) {
+Task _createStartupTest(String testDirectory, String testName) {
   return new Task(
-    testName,
-    (_) => runStartupTest(testDirectory, testName)
+    '${testName}__start_up',
+    (_) => _runStartupTest(testDirectory, testName)
   );
 }
 
-Future<Null> runStartupTest(String testDirectory, String testName) async {
-  await inDirectory(testDirectory, () async {
+Future<TaskResultData> _runStartupTest(String testDirectory, String testName) async {
+  return await inDirectory(testDirectory, () async {
     await pub('get');
     await flutter('run', options: [
       '--verbose',
@@ -41,12 +41,11 @@ Future<Null> runStartupTest(String testDirectory, String testName) async {
       '-d',
       config.androidDeviceId
     ]);
-    copy(file('$testDirectory/build/start_up_info.json'),
-        config.dataDirectory, name: '${testName}__start_up.json');
+    return new TaskResultData.fromFile(file('$testDirectory/build/start_up_info.json'));
   });
 }
 
-Future<int> runTest(String testDirectory, String testTarget, String testName) {
+Future<TaskResultData> _runPerfTest(String testDirectory, String testTarget, String testName) {
   return inDirectory(testDirectory, () async {
     await pub('get');
     await flutter('drive', options: [
@@ -59,7 +58,6 @@ Future<int> runTest(String testDirectory, String testTarget, String testName) {
       '-d',
       config.androidDeviceId
     ]);
-    copy(file('$testDirectory/build/${testName}.timeline_summary.json'),
-        config.dataDirectory, name: '${testName}__timeline_summary.json');
+    return new TaskResultData.fromFile(file('$testDirectory/build/${testName}.timeline_summary.json'));
   });
 }
