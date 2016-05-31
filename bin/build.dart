@@ -28,11 +28,6 @@ Future<Null> main(List<String> args) async {
     section('Build started on ${new DateTime.now()}');
     print(config);
 
-    if (!exists(config.dataDirectory))
-      rrm(config.dataDirectory);
-
-    mkdirs(config.dataDirectory);
-
     await build();
 
     section('Build finished on ${new DateTime.now()}');
@@ -52,20 +47,18 @@ Future<Null> build() async {
 
   await getFlutter(revision);
 
-  String commit = await getFlutterRepoCommit();
-  DateTime timestamp = await getFlutterRepoCommitTimestamp(commit);
+  DateTime timestamp = await getFlutterRepoCommitTimestamp(revision);
   String sdk = await getDartVersion();
   section('build info');
-  print('commit   : $commit');
+  print('revision : $revision');
   print('timestamp: $timestamp');
   print('sdk      : $sdk');
-  await prepareDataDirectory();
 
-  TaskRunner runner = new TaskRunner()
+  TaskRunner runner = new TaskRunner(revision)
     ..enqueueAll(createPerfTests())
     ..enqueueAll(createStartupTests())
     ..enqueue(createGalleryTest())
-    ..enqueueAll(createAnalyzerTests(sdk: sdk, commit: commit, timestamp: timestamp))
+    ..enqueueAll(createAnalyzerTests(sdk: sdk, commit: revision, timestamp: timestamp))
     ..enqueue(createRefreshTest());
 
   BuildResult result = await runner.run();
@@ -74,10 +67,9 @@ Future<Null> build() async {
   for (TaskResult taskResult in result.results)
     print('  ${taskResult.task.name} ${taskResult.succeeded ? "succeeded" : "failed"}');
 
-  Map<String, dynamic> buildInfo = await generateBuildInfo(revision, result);
-
-  await uploadDataToFirebase();
-  markAsRan(revision, buildInfo);
+  await generateBuildInfoFile(revision, result);
+  await uploadDataToFirebase(result);
+  markAsRan(revision);
 }
 
 final Directory tempDirectory = dir('${Platform.environment['HOME']}/.flutter_dashboard');
@@ -89,14 +81,27 @@ File _revisionMarkerFile(String revision) {
 
 bool hasAlreadyRun(String revision) => _revisionMarkerFile(revision).existsSync();
 
-void markAsRan(String revision, Map<String, dynamic> buildInfo) {
+void markAsRan(String revision) {
   if (!shouldUploadData)
     return;
 
-  _revisionMarkerFile(revision).writeAsStringSync(jsonEncode(buildInfo));
+  _revisionMarkerFile(revision).writeAsStringSync(new DateTime.now().toString());
 }
 
-Future<Null> prepareDataDirectory() async {
+Future<Null> generateBuildInfoFile(String revision, BuildResult result) async {
+  Map<String, dynamic> buildInfo = <String, dynamic>{
+    'build_timestamp': '${new DateTime.now()}',
+    'dart_version': await getDartVersion(),
+    'revision': revision,
+    'success': result.succeeded,
+    'failed_task_count': result.failedTaskCount,
+  };
+  await config.dashboardBotStatusFile.writeAsString(jsonEncode(buildInfo));
+}
+
+bool get shouldUploadData => Platform.environment['UPLOAD_DASHBOARD_DATA'] == 'yes';
+
+Future<Null> uploadDataToFirebase(BuildResult result) async {
   // Backup old data
   if (!exists(config.backupDirectory))
     mkdirs(config.backupDirectory);
@@ -107,24 +112,22 @@ Future<Null> prepareDataDirectory() async {
     move(config.dataDirectory, to: config.backupDirectory, name: nameWithTimestamp);
   }
 
-  mkdir(config.dataDirectory);
-}
+  mkdirs(config.dataDirectory);
 
-Future<Map<String, dynamic>> generateBuildInfo(String revision, BuildResult result) async {
-  Map<String, dynamic> buildInfo = <String, dynamic>{
-    'build_timestamp': '${new DateTime.now()}',
-    'dart_version': await getDartVersion(),
-    'revision': revision,
-    'success': result.succeeded,
-    'failed_task_count': result.failedTaskCount,
-  };
-  await config.dashboardBotStatusFile.writeAsString(jsonEncode(buildInfo));
-  return buildInfo;
-}
+  for (TaskResult taskResult in result.results) {
+    Map<String, dynamic> data = new Map<String, dynamic>.from(taskResult.data.json);
 
-bool get shouldUploadData => Platform.environment['UPLOAD_DASHBOARD_DATA'] == 'yes';
+    Map<String, dynamic> metadata = <String, dynamic>{
+      'success': taskResult.succeeded,
+      'revision': taskResult.revision,
+      'message': taskResult.message,
+    };
 
-Future<Null> uploadDataToFirebase() async {
+    data['__metadata__'] = metadata;
+    await file('${config.dataDirectory.path}/${taskResult.task.name}.json')
+      .writeAsString(jsonEncode(data));
+  }
+
   if (!shouldUploadData)
     return null;
 

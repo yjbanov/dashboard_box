@@ -18,19 +18,21 @@ List<Task> createAnalyzerTests({
 }) {
   return <Task>[
     new Task(
-      'analyzer_cli',
+      'analyzer_cli__analysis_time',
       (_) async {
         Benchmark benchmark = new FlutterAnalyzeBenchmark(sdk, commit, timestamp);
         section(benchmark.name);
         await runBenchmark(benchmark, iterations: 3);
+        return benchmark.bestResult;
       }
     ),
     new Task(
-      'analyzer_server',
+      'analyzer_server__analysis_time',
       (_) async {
         Benchmark benchmark = new FlutterAnalyzeAppBenchmark(sdk, commit, timestamp);
         section(benchmark.name);
         await runBenchmark(benchmark, iterations: 3);
+        return benchmark.bestResult;
       }
     ),
   ];
@@ -46,17 +48,15 @@ class FlutterAnalyzeBenchmark extends Benchmark {
   File get benchmarkFile => file(path.join(config.flutterDirectory.path, 'analysis_benchmark.json'));
 
   @override
+  TaskResultData get lastResult => new TaskResultData.fromFile(benchmarkFile);
+
+  @override
   Future<num> run() async {
     rm(benchmarkFile);
     await inDirectory(config.flutterDirectory, () async {
       await flutter('analyze', options: ['--flutter-repo', '--benchmark']);
     });
     return addBuildInfo(benchmarkFile, timestamp: timestamp, expected: 25.0, sdk: sdk, commit: commit);
-  }
-
-  @override
-  void markLastRunWasBest(num result, List<num> allRuns) {
-    copy(benchmarkFile, config.dataDirectory, name: 'analyzer_cli__analysis_time.json');
   }
 }
 
@@ -66,6 +66,9 @@ class FlutterAnalyzeAppBenchmark extends Benchmark {
   final String sdk;
   final String commit;
   final DateTime timestamp;
+
+  @override
+  TaskResultData get lastResult => new TaskResultData.fromFile(benchmarkFile);
 
   Directory get megaDir => dir(path.join(config.flutterDirectory.path, 'dev/benchmarks/mega_gallery'));
   File get benchmarkFile => file(path.join(megaDir.path, 'analysis_benchmark.json'));
@@ -83,10 +86,5 @@ class FlutterAnalyzeAppBenchmark extends Benchmark {
       await flutter('analyze', options: ['--watch', '--benchmark']);
     });
     return addBuildInfo(benchmarkFile, timestamp: timestamp, expected: 10.0, sdk: sdk, commit: commit);
-  }
-
-  @override
-  void markLastRunWasBest(num result, List<num> allRuns) {
-    copy(benchmarkFile, config.dataDirectory, name: 'analyzer_server__analysis_time.json');
   }
 }

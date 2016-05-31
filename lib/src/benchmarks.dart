@@ -3,17 +3,18 @@
 // found in the LICENSE file.
 
 import 'dart:async';
+import 'framework.dart';
 
 abstract class Benchmark {
   Benchmark(this.name);
 
   final String name;
+  TaskResultData bestResult;
 
   Future<Null> init() => new Future.value();
 
   Future<num> run();
-
-  void markLastRunWasBest(num result, List<num> allRuns);
+  TaskResultData get lastResult;
 
   String toString() => name;
 }
@@ -35,7 +36,7 @@ Future<num> runBenchmark(Benchmark benchmark, { int iterations: 1 }) async {
       allRuns.add(result);
 
       if (minValue == null || result < minValue) {
-        benchmark.markLastRunWasBest(result, allRuns);
+        benchmark.bestResult = benchmark.lastResult;
         minValue = result;
       }
     } catch (error) {
