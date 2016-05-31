@@ -1,3 +1,11 @@
 language: dart
 sudo: false
-script: ./tool/travis.sh
+before_install:
+  - DART_DIST=dartsdk-linux-x64-release.zip
+  - curl https://storage.googleapis.com/dart-archive/channels/stable/release/1.16.0/sdk/dartsdk-linux-x64-release.zip > $DART_DIST
+  - unzip $DART_DIST > /dev/null
+  - export DART_SDK="$PWD/dart-sdk"
+  - export PATH="$DART_SDK/bin:$PATH"
+script:
+  - dart --version
+  - ./tool/travis.sh
