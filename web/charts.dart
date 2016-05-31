@@ -9,6 +9,7 @@ import 'package:firebase/firebase.dart';
 
 Firebase firebase;
 CartesianArea analysisChartArea;
+CartesianArea dartdocChartArea;
 CartesianArea refreshChartArea;
 
 Map<int, Measurement> repoMeasurements = {};
@@ -17,6 +18,7 @@ Map<int, Measurement> refreshMeasurements = {};
 
 void main() {
   _updateAnalysisChart();
+  _updateDartdocChart();
   _updateRefreshChart();
 
   firebase = new Firebase("https://purple-butterfly-3000.firebaseio.com/");
@@ -53,7 +55,7 @@ void _listenForChartChanges() {
         repoMeasurements[measurement.timestampMillis] = measurement;
       }
     });
-    _updateChart();
+    _updateCharts();
   });
   galleryQuery.onValue.listen((Event event) {
     galleryMeasurements = {};
@@ -63,7 +65,7 @@ void _listenForChartChanges() {
         galleryMeasurements[measurement.timestampMillis] = measurement;
       }
     });
-    _updateChart();
+    _updateCharts();
   });
   refreshQuery.onValue.listen((Event event) {
     refreshMeasurements = {};
@@ -73,11 +75,11 @@ void _listenForChartChanges() {
         refreshMeasurements[measurement.timestampMillis] = measurement;
       }
     });
-    _updateChart();
+    _updateCharts();
   });
 }
 
-void _updateChart() {
+void _updateCharts() {
   List<int> times = new List.from(new Set<int>()
     ..addAll(repoMeasurements.keys)
     ..addAll(galleryMeasurements.keys)
@@ -87,10 +89,17 @@ void _updateChart() {
   }).toList();
   _updateAnalysisChart(analysisData);
 
+  times = repoMeasurements.keys.toList()..sort();
+  List dartdocData = times
+    .map((int time) => [time, repoMeasurements[time].missingDartDocs])
+    .where((List tuple) => tuple[1] != null)
+    .toList();
+  _updateDartdocChart(dartdocData);
+
   times = refreshMeasurements.keys.toList()..sort();
-  List refreshData = times.map((int time) {
-    return [time, refreshMeasurements[time].time];
-  }).toList();
+  List refreshData = times
+    .map((int time) => [time, refreshMeasurements[time].time])
+    .toList();
   _updateRefreshChart(refreshData);
 }
 
@@ -103,6 +112,7 @@ class Measurement {
   num get issues => map['issues'];
   String get sdk => map['sdk'];
   num get time => map['time'];
+  num get missingDartDocs => map['missingDartDocs'];
   num get timestampMillis => map['timestamp'];
 
   String get commit => map['commit'] is String ? map['commit'] : null;
@@ -119,74 +129,115 @@ class Measurement {
   String toString() => '${time}s (${dateString})';
 }
 
+final List _analysisColumnSpecs = [
+  new ChartColumnSpec(label: 'Time', type: ChartColumnSpec.TYPE_TIMESTAMP),
+  new ChartColumnSpec(label: 'flutter_repo', type: ChartColumnSpec.TYPE_NUMBER, formatter: _printDurationValSeconds),
+  new ChartColumnSpec(label: 'mega_gallery', type: ChartColumnSpec.TYPE_NUMBER, formatter: _printDurationValSeconds)
+];
+
 void _updateAnalysisChart([List data = const []]) {
-  if (data.length < 2)
-    data = _getPlaceholderData();
+  if (data == null || data.length < 2)
+    data = _createPlaceholderData(<double>[0.0, 0.0]);
 
-  if (analysisChartArea != null) {
-    analysisChartArea.data = new ChartData(_analysisColumnSpecs, data);
-  } else {
-    DivElement wrapper = document.querySelector('#analysis-perf-chart');
-    DivElement areaHost = wrapper.querySelector('.chart-host');
-    DivElement legendHost = wrapper.querySelector('.chart-legend-host');
-
-    ChartData chartData = new ChartData(_analysisColumnSpecs, data);
+  if (analysisChartArea == null) {
+    DivElement chartElement = document.querySelector('#analysis-perf-chart');
+    DivElement legendHost = chartElement.querySelector('.chart-legend-host');
     ChartSeries series = new ChartSeries("Flutter Analysis Times", [1, 2], new LineChartRenderer());
-    ChartConfig config = new ChartConfig([series], [0])..legend = new ChartLegend(legendHost);
 
     analysisChartArea = new CartesianArea(
-      areaHost,
-      chartData,
-      config,
-      state: new ChartState()
+      chartElement.querySelector('.chart-host'),
+      null,
+      _createChartConfig(legendHost, series)
     );
-
     analysisChartArea.addChartBehavior(new Hovercard(builder: (int columnIndex, int rowIndex) {
-      List row = analysisChartArea.data.rows.elementAt(rowIndex);
+      List<int> data = analysisChartArea.data.rows.elementAt(rowIndex);
       ChartColumnSpec spec = analysisChartArea.data.columns.elementAt(columnIndex);
-      int time = row[0];
-      Measurement measurement = (columnIndex == 1 ? repoMeasurements : galleryMeasurements)[time];
+      Measurement measurement = (columnIndex == 1 ? repoMeasurements : galleryMeasurements)[data[0]];
       return _createTooltip(spec, measurement, unitsLabel: 's');
     }));
     analysisChartArea.addChartBehavior(new AxisLabelTooltip());
   }
 
+  analysisChartArea.data = new ChartData(_analysisColumnSpecs, data);
   analysisChartArea.draw();
 }
 
+final List _dartdocColumnSpecs = [
+  new ChartColumnSpec(label: 'Time', type: ChartColumnSpec.TYPE_TIMESTAMP),
+  new ChartColumnSpec(label: 'Burndown', type: ChartColumnSpec.TYPE_NUMBER)
+];
+
+void _updateDartdocChart([List data]) {
+  if (data == null || data.length < 2)
+    data = _createPlaceholderData(<int>[0]);
+
+  if (dartdocChartArea == null) {
+    DivElement chartElement = document.querySelector('#documentation-chart');
+    DivElement legendHost = chartElement.querySelector('.chart-legend-host');
+    ChartSeries series = new ChartSeries('Dartdoc Burndown', [1], new LineChartRenderer());
+
+    dartdocChartArea = new CartesianArea(
+      chartElement.querySelector('.chart-host'),
+      null,
+      _createChartConfig(legendHost, series)
+    );
+    dartdocChartArea.addChartBehavior(new Hovercard(builder: (int columnIndex, int rowIndex) {
+      List<int> data = dartdocChartArea.data.rows.elementAt(rowIndex);
+      ChartColumnSpec spec = dartdocChartArea.data.columns.elementAt(columnIndex);
+      Measurement measurement = repoMeasurements[data[0]];
+      return _createTooltip(spec, measurement, value: measurement.missingDartDocs);
+    }));
+    dartdocChartArea.addChartBehavior(new AxisLabelTooltip());
+  }
+
+  dartdocChartArea.data = new ChartData(_dartdocColumnSpecs, data);
+  dartdocChartArea.draw();
+}
+
+final List _refreshColumnSpecs = [
+  new ChartColumnSpec(label: 'Time', type: ChartColumnSpec.TYPE_TIMESTAMP),
+  new ChartColumnSpec(label: 'Refresh', type: ChartColumnSpec.TYPE_NUMBER, formatter: _printDurationValMillis)
+];
+
 void _updateRefreshChart([List data = const []]) {
-  if (data.length < 2)
-    data = _getPlaceholderDataRefresh();
+  if (data == null || data.length < 2)
+    data = _createPlaceholderData(<int>[0]);
 
-  if (refreshChartArea != null) {
-    refreshChartArea.data = new ChartData(_refreshColumnSpecs, data);
-  } else {
-    DivElement wrapper = document.querySelector('#refresh-perf-chart');
-    DivElement areaHost = wrapper.querySelector('.chart-host');
-    DivElement legendHost = wrapper.querySelector('.chart-legend-host');
-
-    ChartData chartData = new ChartData(_refreshColumnSpecs, data);
+  if (refreshChartArea == null) {
+    DivElement chartElement = document.querySelector('#refresh-perf-chart');
+    DivElement legendHost = chartElement.querySelector('.chart-legend-host');
     ChartSeries series = new ChartSeries("Edit Refresh Times", [1], new LineChartRenderer());
-    ChartConfig config = new ChartConfig([series], [0])..legend = new ChartLegend(legendHost);
 
     refreshChartArea = new CartesianArea(
-      areaHost,
-      chartData,
-      config,
-      state: new ChartState()
+      chartElement.querySelector('.chart-host'),
+      null,
+      _createChartConfig(legendHost, series)
     );
-
     refreshChartArea.addChartBehavior(new Hovercard(builder: (int columnIndex, int rowIndex) {
-      List row = refreshChartArea.data.rows.elementAt(rowIndex);
+      List<int> data = refreshChartArea.data.rows.elementAt(rowIndex);
       ChartColumnSpec spec = refreshChartArea.data.columns.elementAt(columnIndex);
-      int time = row[0];
-      Measurement measurement = refreshMeasurements[time];
+      Measurement measurement = refreshMeasurements[data[0]];
       return _createTooltip(spec, measurement, unitsLabel: 'ms');
     }));
     refreshChartArea.addChartBehavior(new AxisLabelTooltip());
   }
 
+  refreshChartArea.data = new ChartData(_refreshColumnSpecs, data);
   refreshChartArea.draw();
+}
+
+List<dynamic> _createPlaceholderData(List<dynamic> templateItems) {
+  DateTime now = new DateTime.now();
+  return [
+    [now.subtract(new Duration(days: 30)).millisecondsSinceEpoch]..addAll(templateItems),
+    [now.millisecondsSinceEpoch]..addAll(templateItems),
+  ];
+}
+
+ChartConfig _createChartConfig(DivElement legendHost, ChartSeries series) {
+  ChartConfig config = new ChartConfig([series], [0]);
+  config.legend = new ChartLegend(legendHost);
+  return config;
 }
 
 String _printDurationValSeconds(num val) {
@@ -199,67 +250,25 @@ String _printDurationValMillis(num val) {
   return _formatWithThousandsSeparator(val.toInt()) + 'ms';
 }
 
-Element _createTooltip(ChartColumnSpec spec, Measurement measurement, { String unitsLabel }) {
+Element _createTooltip(ChartColumnSpec spec, Measurement measurement, {
+  dynamic value,
+  String unitsLabel: ''
+}) {
   Element element = div('', className: 'hovercard-single');
 
   if (measurement == null) {
     element.text = 'No data';
   } else {
+    if (value == null)
+      value = measurement.time;
     element.children.add(div(spec.label, className: 'hovercard-title'));
-    element.children.add(div('time: ${measurement.time}$unitsLabel', className: 'hovercard-value'));
-    element.children.add(div('at: ${measurement.date}', className: 'hovercard-value'));
+    element.children.add(div('$value$unitsLabel', className: 'hovercard-value'));
+    element.children.add(div('${measurement.date}', className: 'hovercard-value'));
     if (measurement.commit != null)
-      element.children.add(div('commit: ${measurement.commit.substring(0, 10)}', className: 'hovercard-value'));
+      element.children.add(div('(commit ${measurement.commit.substring(0, 10)})', className: 'hovercard-value'));
   }
 
   return element;
-}
-
-List _analysisColumnSpecs = [
-  new ChartColumnSpec(
-    label: 'Time',
-    type: ChartColumnSpec.TYPE_TIMESTAMP
-  ),
-  new ChartColumnSpec(
-    label: 'flutter_repo',
-    type: ChartColumnSpec.TYPE_NUMBER,
-    formatter: _printDurationValSeconds
-  ),
-  new ChartColumnSpec(
-    label: 'mega_gallery',
-    type: ChartColumnSpec.TYPE_NUMBER,
-    formatter: _printDurationValSeconds
-  )
-];
-
-List _refreshColumnSpecs = [
-  new ChartColumnSpec(
-    label: 'Time',
-    type: ChartColumnSpec.TYPE_TIMESTAMP
-  ),
-  new ChartColumnSpec(
-    label: 'Refresh',
-    type: ChartColumnSpec.TYPE_NUMBER,
-    formatter: _printDurationValMillis
-  )
-];
-
-List _getPlaceholderData() {
-  DateTime now = new DateTime.now();
-
-  return [
-    [now.subtract(new Duration(days: 30)).millisecondsSinceEpoch, 0.0, 0.0],
-    [now.millisecondsSinceEpoch, 0.0, 0.0],
-  ];
-}
-
-List _getPlaceholderDataRefresh() {
-  DateTime now = new DateTime.now();
-
-  return [
-    [now.subtract(new Duration(days: 30)).millisecondsSinceEpoch, 0],
-    [now.millisecondsSinceEpoch, 0],
-  ];
 }
 
 DivElement div(String text, { String className }) {

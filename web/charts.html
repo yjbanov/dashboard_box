@@ -33,12 +33,12 @@
     }
 
     .chart-host {
-      width: 85%;
+      width: 82%;
       height: 300px;
     }
 
     .chart-legend-host {
-      width: 15%;
+      width: 18%;
     }
 
     .chart-legend-row {
@@ -68,7 +68,16 @@
   <div style="display: flex">
     <div class="chart-wrapper card" id="analysis-perf-chart" style="flex: 2">
       <div class="chart-title-wrapper">
-        <div class="metric-type">Flutter Analysis Times</div>
+        <div class="metric-type">Analysis Times</div>
+      </div>
+      <div class="chart-host-wrapper">
+        <div class="chart-host" dir="ltr"></div>
+        <div class="chart-legend-host"></div>
+      </div>
+    </div>
+    <div class="chart-wrapper card" id="documentation-chart" style="flex: 2">
+      <div class="chart-title-wrapper">
+        <div class="metric-type">Dartdoc Burndown</div>
       </div>
       <div class="chart-host-wrapper">
         <div class="chart-host" dir="ltr"></div>
@@ -78,9 +87,18 @@
   </div>
 
   <div style="display: flex">
+    <div class="chart-wrapper card" id="app-size-chart" style="flex: 2">
+      <div class="chart-title-wrapper">
+        <div class="metric-type">App Size</div>
+      </div>
+      <div class="chart-host-wrapper">
+        <div class="chart-host" dir="ltr"></div>
+        <div class="chart-legend-host"></div>
+      </div>
+    </div>
     <div class="chart-wrapper card" id="refresh-perf-chart" style="flex: 2">
       <div class="chart-title-wrapper">
-        <div class="metric-type">Edit Refresh Times</div>
+        <div class="metric-type">Edit/Refresh Times</div>
       </div>
       <div class="chart-host-wrapper">
         <div class="chart-host" dir="ltr"></div>
