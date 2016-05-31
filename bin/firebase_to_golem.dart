@@ -59,7 +59,7 @@ String lastProcessedRevision;
 /// Synchronizes Firebase values to Golem once.
 Future<Null> syncToGolem() async {
   // TODO(yjbanov): get each individual benchmark revision as opposed to whole build revision
-  Map<String, dynamic> buildInfo = await firebaseDownloadCurrent('build');
+  Map<String, dynamic> buildInfo = await firebaseDownloadCurrent('dashboard_bot_status');
   String revision = buildInfo['revision'];
   if (lastProcessedRevision == revision) {
     // Skip this revision. Already processed it.
