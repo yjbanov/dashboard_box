@@ -31,3 +31,4 @@ popd
 
 $GSUTIL cp /tmp/flutter.dashboard.stdout.txt gs://flutter-dashboard/$SHA/stdout.txt
 $GSUTIL cp /tmp/flutter.dashboard.stderr.txt gs://flutter-dashboard/$SHA/stderr.txt
+$GSUTIL -m acl ch -R -g 'google.com:R' gs://flutter-dashboard/$SHA
