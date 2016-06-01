@@ -30,8 +30,8 @@
     <integer>1200</integer>
 
     <key>StandardOutPath</key>
-    <string>/tmp/flutter.dashboard.output.txt</string>
+    <string>/tmp/flutter.dashboard.launchd.stdout</string>
     <key>StandardErrorPath</key>
-    <string>/tmp/flutter.dashboard.output.txt</string>
+    <string>/tmp/flutter.dashboard.launchd.stderr</string>
   </dict>
 </plist>
