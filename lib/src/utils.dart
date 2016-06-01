@@ -176,7 +176,6 @@ class Config {
   Config.fromProperties({
     this.rootDirectory,
     this.dataDirectory,
-    this.backupDirectory,
     this.flutterDirectory,
     this.scriptsDirectory,
     this.configFile,
@@ -187,7 +186,6 @@ class Config {
 
   Config(String rootPath) : rootDirectory = dir(rootPath) {
     this.dataDirectory = dir('${rootDirectory.path}/data');
-    this.backupDirectory = dir('${rootDirectory.path}/backup');
     this.flutterDirectory = dir('${rootDirectory.path}/flutter');
     this.scriptsDirectory = dir('${rootDirectory.path}/dashboard_box');
 
@@ -210,7 +208,6 @@ See: https://github.com/flutter/dashboard_box/blob/master/README.md
 
   final Directory rootDirectory;
   Directory dataDirectory;
-  Directory backupDirectory;
   Directory flutterDirectory;
   Directory scriptsDirectory;
   File configFile;
@@ -223,7 +220,6 @@ See: https://github.com/flutter/dashboard_box/blob/master/README.md
 '''
 rootDirectory: $rootDirectory
 dataDirectory: $dataDirectory
-backupDirectory: $backupDirectory
 flutterDirectory: $flutterDirectory
 scriptsDirectory: $scriptsDirectory
 configFile: $configFile
