@@ -33,5 +33,5 @@ pushd $ROOT_DIRECTORY/flutter
 SHA=$(git rev-parse HEAD)
 popd
 
-$GSUTIL cp $LOG_FILE gs://flutter-dashboard/$SHA/output.txt
+$GSUTIL cp $LOG_FILE gs://flutter-dashboard/$SHA/output-$(date +"%Y-%m-%d-%H%M%S").txt
 $GSUTIL -m acl ch -R -g 'google.com:R' gs://flutter-dashboard/$SHA
