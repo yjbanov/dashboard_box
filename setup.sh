@@ -29,6 +29,10 @@ set -e
 
 # Upload logs to Google Cloud Storage
 
+if [ -e "$ROOT_DIRECTORY/data/build_cancelled" ]; then
+  exit 0;
+fi
+
 pushd $ROOT_DIRECTORY/flutter
 SHA=$(git rev-parse HEAD)
 popd

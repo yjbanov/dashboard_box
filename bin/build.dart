@@ -5,7 +5,6 @@
 import 'dart:async';
 import 'dart:io';
 
-import 'package:intl/intl.dart';
 import 'package:path/path.dart' as path;
 import 'package:stack_trace/stack_trace.dart';
 
@@ -39,9 +38,12 @@ Future<Null> main(List<String> args) async {
 }
 
 Future<Null> build() async {
+  prepareDataDirectory();
+
   String revision = await getLatestGreenRevision();
   if (hasAlreadyRun(revision)) {
     print('No new green revisions found to run. Will check back again soon.');
+    await markBuildCancelled();
     return null;
   }
 
@@ -70,6 +72,20 @@ Future<Null> build() async {
   await generateBuildInfoFile(revision, result);
   await uploadDataToFirebase(result);
   markAsRan(revision);
+}
+
+void prepareDataDirectory() {
+  rrm(config.dataDirectory);
+  mkdirs(config.dataDirectory);
+}
+
+/// Existence of this file in the data directory indicates that the last build
+/// attempt was cancelled because there was nothing new to build, usually due
+/// lack of new green revisions of Flutter.
+File get buildCancelledMarkerFile => file('${config.dataDirectory.path}/build_cancelled');
+
+void markBuildCancelled() {
+  buildCancelledMarkerFile.writeAsStringSync('');
 }
 
 final Directory tempDirectory = dir('${Platform.environment['HOME']}/.flutter_dashboard');
@@ -102,18 +118,6 @@ Future<Null> generateBuildInfoFile(String revision, BuildResult result) async {
 bool get shouldUploadData => Platform.environment['UPLOAD_DASHBOARD_DATA'] == 'yes';
 
 Future<Null> uploadDataToFirebase(BuildResult result) async {
-  // Backup old data
-  if (!exists(config.backupDirectory))
-    mkdirs(config.backupDirectory);
-
-  if (exists(config.dataDirectory)) {
-    DateFormat dfmt = new DateFormat('yyyy-MM-dd-HHmmss');
-    String nameWithTimestamp = dfmt.format(new DateTime.now());
-    move(config.dataDirectory, to: config.backupDirectory, name: nameWithTimestamp);
-  }
-
-  mkdirs(config.dataDirectory);
-
   for (TaskResult taskResult in result.results) {
     Map<String, dynamic> data = new Map<String, dynamic>.from(taskResult.data.json);
 
@@ -132,6 +136,9 @@ Future<Null> uploadDataToFirebase(BuildResult result) async {
     return null;
 
   for (File file in ls(config.dataDirectory)) {
+    if (!file.path.endsWith('.json'))
+      continue;
+
     await uploadToFirebase(file);
   }
 }
