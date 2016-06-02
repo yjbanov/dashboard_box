@@ -60,7 +60,7 @@ class EditRefreshBenchmark extends Benchmark {
     rm(benchmarkFile);
     int exitCode = await inDirectory(megaDir, () async {
       return await flutter(
-        'run', onCancel, options: ['-v', '-d', config.androidDeviceId, '--resident', '--benchmark'], canFail: true
+        'run', onCancel, options: ['-d', config.androidDeviceId, '--resident', '--benchmark'], canFail: true
       );
     });
     if (exitCode != 0)

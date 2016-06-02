@@ -20,7 +20,6 @@ class GalleryTransitionTest extends Task {
     await inDirectory(galleryDirectory, () async {
       await pub('get', onCancel);
       await flutter('drive', onCancel, options: [
-        '--verbose',
         // TODO(yjbanov): switch to --profile when ready (http://dartbug.com/26550)
         '--debug',
         '--trace-startup',
