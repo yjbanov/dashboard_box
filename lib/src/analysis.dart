@@ -22,7 +22,7 @@ List<Task> createAnalyzerTests({
       (_) async {
         Benchmark benchmark = new FlutterAnalyzeBenchmark(sdk, commit, timestamp);
         section(benchmark.name);
-        await runBenchmark(benchmark, iterations: 3);
+        await runBenchmark(benchmark, iterations: 3, warmUpBenchmark: true);
         return benchmark.bestResult;
       }
     ),
@@ -31,7 +31,7 @@ List<Task> createAnalyzerTests({
       (_) async {
         Benchmark benchmark = new FlutterAnalyzeAppBenchmark(sdk, commit, timestamp);
         section(benchmark.name);
-        await runBenchmark(benchmark, iterations: 3);
+        await runBenchmark(benchmark, iterations: 3, warmUpBenchmark: true);
         return benchmark.bestResult;
       }
     ),

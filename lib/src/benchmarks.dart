@@ -3,6 +3,7 @@
 // found in the LICENSE file.
 
 import 'dart:async';
+
 import 'framework.dart';
 
 abstract class Benchmark {
@@ -19,12 +20,18 @@ abstract class Benchmark {
   String toString() => name;
 }
 
-Future<num> runBenchmark(Benchmark benchmark, { int iterations: 1 }) async {
+Future<num> runBenchmark(Benchmark benchmark, {
+  int iterations: 1,
+  bool warmUpBenchmark: false
+}) async {
   await benchmark.init();
 
   List<num> allRuns = <num>[];
 
   num minValue;
+
+  if (warmUpBenchmark)
+    await benchmark.run();
 
   while (iterations > 0) {
     iterations--;

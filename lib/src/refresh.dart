@@ -50,7 +50,9 @@ class EditRefreshBenchmark extends Benchmark {
   Future<num> run() async {
     rm(benchmarkFile);
     int exitCode = await inDirectory(megaDir, () async {
-      return await flutter('run', options: ['-d', config.androidDeviceId, '--resident', '--benchmark'], canFail: true);
+      return await flutter(
+        'run', options: ['-v', '-d', config.androidDeviceId, '--resident', '--benchmark'], canFail: true
+      );
     });
     if (exitCode != 0)
       return new Future.error(exitCode);
