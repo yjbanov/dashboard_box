@@ -17,6 +17,8 @@ import 'package:dashboard_box/src/perf_tests.dart';
 import 'package:dashboard_box/src/refresh.dart';
 import 'package:dashboard_box/src/utils.dart';
 
+const Duration totalBuildTimeout = const Duration(minutes: 30);
+
 Future<Null> main(List<String> args) async {
   if (args.length != 1)
     fail('Expects a single argument pointing to the root directory of the dashboard but got: $args');
@@ -27,9 +29,14 @@ Future<Null> main(List<String> args) async {
     section('Build started on ${new DateTime.now()}');
     print(config);
 
-    await build();
+    await build().timeout(totalBuildTimeout);
 
     section('Build finished on ${new DateTime.now()}');
+
+    // By this point all processes should have exited, and if they
+    // didn't give them a couple of seconds then force exit.
+    await new Future.delayed(const Duration(seconds: 2));
+    exit(0);
   }, onError: (error, Chain chain) {
     print(error);
     print(chain.terse);

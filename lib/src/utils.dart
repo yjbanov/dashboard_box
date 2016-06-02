@@ -107,8 +107,11 @@ Future<Process> startProcess(String executable, List<String> arguments,
     });
 
     onKill.then((_) {
-      if (!processExited)
-        proc.kill(ProcessSignal.SIGKILL);
+      if (!processExited) {
+        print('Caught signal to kill process (PID: ${proc.pid}): $executable ${arguments.join(' ')}');
+        bool killed = proc.kill(ProcessSignal.SIGKILL);
+        print('Process ${killed ? "was killed successfully" : "could not be killed"}.');
+      }
     });
   }
 
