@@ -337,7 +337,7 @@ void checkNotNull(Object o1, [Object o2 = 1, Object o3 = 1, Object o4 = 1,
 ///
 /// If the file contains information about how long the benchmark took to run
 /// (a `time` field), then return that info.
-@Deprecated('This should be moved to __metadata__')
+// TODO(yjbanov): move this data to __metadata__
 num addBuildInfo(File jsonFile, {
   num expected,
   String sdk,
