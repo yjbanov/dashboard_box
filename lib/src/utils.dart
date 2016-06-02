@@ -95,10 +95,32 @@ Future<DateTime> getFlutterRepoCommitTimestamp(String commit) {
   });
 }
 
-/// Executes a command and returns its exit code.
-Future<int> exec(String executable, List<String> arguments, {Map<String, String> env, bool canFail: false}) async {
-  print('Executing: $executable ${arguments.join(' ')}');
+Future<Process> startProcess(String executable, List<String> arguments,
+    {Map<String, String> env, Future<Null> onKill}) async {
   Process proc = await Process.start(executable, arguments, environment: env, workingDirectory: cwd);
+
+  if (onKill != null) {
+    bool processExited = false;
+
+    proc.exitCode.then((_) {
+      processExited = true;
+    });
+
+    onKill.then((_) {
+      if (!processExited)
+        proc.kill(ProcessSignal.SIGKILL);
+    });
+  }
+
+  return proc;
+}
+
+/// Executes a command and returns its exit code.
+Future<int> exec(String executable, List<String> arguments,
+    {Map<String, String> env, bool canFail: false, Future<Null> onKill}) async {
+  print('Executing: $executable ${arguments.join(' ')}');
+  Process proc = await startProcess(executable, arguments, env: env, onKill: onKill);
+
   proc.stdout
     .transform(UTF8.decoder)
     .transform(const LineSplitter())
@@ -107,6 +129,7 @@ Future<int> exec(String executable, List<String> arguments, {Map<String, String>
     .transform(UTF8.decoder)
     .transform(const LineSplitter())
     .listen(stderr.writeln);
+
   int exitCode = await proc.exitCode;
 
   if (exitCode != 0 && !canFail)
@@ -116,9 +139,10 @@ Future<int> exec(String executable, List<String> arguments, {Map<String, String>
 }
 
 /// Executes a command and returns its standard output as a String.
-Future<String> eval(String executable, List<String> arguments, {Map<String, String> env, bool canFail: false}) async {
+Future<String> eval(String executable, List<String> arguments,
+    {Map<String, String> env, bool canFail: false, Future<Null> onKill}) async {
   print('Executing: $executable ${arguments.join(' ')}');
-  Process proc = await Process.start(executable, arguments, environment: env, workingDirectory: cwd);
+  Process proc = await startProcess(executable, arguments, env: env, onKill: onKill);
   stderr.addStream(proc.stderr);
   String output = await UTF8.decodeStream(proc.stdout);
   int exitCode = await proc.exitCode;
@@ -129,20 +153,25 @@ Future<String> eval(String executable, List<String> arguments, {Map<String, Stri
   return output.trimRight();
 }
 
-Future<int> flutter(String command, {List<String> options: const<String>[], bool canFail: false}) {
+Future<int> flutter(String command, Future<Null> onKill, {List<String> options: const<String>[], bool canFail: false}) {
+  if (onKill == null) {
+    throw 'flutter command must obey onKill signal';
+  }
+
   List<String> args = [command]
     ..addAll(options);
-  return exec(path.join(config.flutterDirectory.path, 'bin', 'flutter'), args, canFail: canFail);
+  return exec(path.join(config.flutterDirectory.path, 'bin', 'flutter'), args, canFail: canFail, onKill: onKill);
 }
 
 String get dartBin => path.join(config.flutterDirectory.path, 'bin/cache/dart-sdk/bin/dart');
 
-Future<int> dart(List<String> args) => exec(dartBin, args);
+Future<int> dart(List<String> args, Future<Null> onKill) => exec(dartBin, args, onKill: onKill);
 
-Future<int> pub(String command) {
+Future<int> pub(String command, Future<Null> onKill) {
   return exec(
     path.join(config.flutterDirectory.path, 'bin/cache/dart-sdk/bin/pub'),
-    [command]
+    [command],
+    onKill: onKill
   );
 }
 
@@ -255,17 +284,20 @@ Future<Null> getFlutter(String revision) async {
   if (exists(config.flutterDirectory))
     rrm(config.flutterDirectory);
 
-  await exec('git', ['clone', 'https://github.com/flutter/flutter.git']);
+  Future<Null> timeout = new Future<Null>.delayed(const Duration(minutes: 10));
+
+  await exec('git', ['clone', 'https://github.com/flutter/flutter.git'], onKill: timeout);
   await inDirectory(config.flutterDirectory, () async {
-    await exec('git', ['checkout', revision]);
+    await exec('git', ['checkout', revision], onKill: timeout);
   });
-  await flutter('config', options: ['--no-analytics']);
+
+  await flutter('config', timeout, options: ['--no-analytics']);
 
   section('flutter doctor');
-  await flutter('doctor');
+  await flutter('doctor', timeout);
 
   section('flutter update-packages');
-  await flutter('update-packages');
+  await flutter('update-packages', timeout);
 }
 
 void checkNotNull(Object o1, [Object o2 = 1, Object o3 = 1, Object o4 = 1,
@@ -305,6 +337,7 @@ void checkNotNull(Object o1, [Object o2 = 1, Object o3 = 1, Object o4 = 1,
 ///
 /// If the file contains information about how long the benchmark took to run
 /// (a `time` field), then return that info.
+@Deprecated('This should be moved to __metadata__')
 num addBuildInfo(File jsonFile, {
   num expected,
   String sdk,

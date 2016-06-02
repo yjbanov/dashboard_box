@@ -7,9 +7,11 @@ import 'dart:async';
 import 'framework.dart';
 
 abstract class Benchmark {
-  Benchmark(this.name);
+  Benchmark(this.name, this.onCancel);
 
   final String name;
+  final Future<Null> onCancel;
+
   TaskResultData bestResult;
 
   Future<Null> init() => new Future.value();

@@ -17,29 +17,39 @@ List<Task> createAnalyzerTests({
   DateTime timestamp
 }) {
   return <Task>[
-    new Task(
-      'analyzer_cli__analysis_time',
-      (_) async {
-        Benchmark benchmark = new FlutterAnalyzeBenchmark(sdk, commit, timestamp);
-        section(benchmark.name);
-        await runBenchmark(benchmark, iterations: 3, warmUpBenchmark: true);
-        return benchmark.bestResult;
-      }
-    ),
-    new Task(
-      'analyzer_server__analysis_time',
-      (_) async {
-        Benchmark benchmark = new FlutterAnalyzeAppBenchmark(sdk, commit, timestamp);
-        section(benchmark.name);
-        await runBenchmark(benchmark, iterations: 3, warmUpBenchmark: true);
-        return benchmark.bestResult;
-      }
-    ),
+    new AnalyzerCliTask(sdk, commit, timestamp),
+    new AnalyzerServerTask(sdk, commit, timestamp),
   ];
 }
 
+abstract class AnalyzerTask extends Task {
+  AnalyzerTask(String name) : super(name);
+
+  Benchmark benchmark;
+
+  @override
+  Future<TaskResultData> run() async {
+    section(benchmark.name);
+    await runBenchmark(benchmark, iterations: 3, warmUpBenchmark: true);
+    return benchmark.bestResult;
+  }
+}
+
+class AnalyzerCliTask extends AnalyzerTask {
+  AnalyzerCliTask(String sdk, String commit, DateTime timestamp) : super('analyzer_cli__analysis_time') {
+    this.benchmark = new FlutterAnalyzeBenchmark(onCancel, sdk, commit, timestamp);
+  }
+}
+
+class AnalyzerServerTask extends AnalyzerTask {
+  AnalyzerServerTask(String sdk, String commit, DateTime timestamp) : super('analyzer_server__analysis_time') {
+    this.benchmark = new FlutterAnalyzeAppBenchmark(onCancel, sdk, commit, timestamp);
+  }
+}
+
 class FlutterAnalyzeBenchmark extends Benchmark {
-  FlutterAnalyzeBenchmark(this.sdk, this.commit, this.timestamp) : super('flutter analyze --flutter-repo');
+  FlutterAnalyzeBenchmark(Future<Null> onCancel, this.sdk, this.commit, this.timestamp)
+    : super('flutter analyze --flutter-repo', onCancel);
 
   final String sdk;
   final String commit;
@@ -54,14 +64,15 @@ class FlutterAnalyzeBenchmark extends Benchmark {
   Future<num> run() async {
     rm(benchmarkFile);
     await inDirectory(config.flutterDirectory, () async {
-      await flutter('analyze', options: ['--flutter-repo', '--benchmark']);
+      await flutter('analyze', onCancel, options: ['--flutter-repo', '--benchmark']);
     });
     return addBuildInfo(benchmarkFile, timestamp: timestamp, expected: 25.0, sdk: sdk, commit: commit);
   }
 }
 
 class FlutterAnalyzeAppBenchmark extends Benchmark {
-  FlutterAnalyzeAppBenchmark(this.sdk, this.commit, this.timestamp) : super('analysis server mega_gallery');
+  FlutterAnalyzeAppBenchmark(Future<Null> onCancel, this.sdk, this.commit, this.timestamp)
+    : super('analysis server mega_gallery', onCancel);
 
   final String sdk;
   final String commit;
@@ -75,7 +86,7 @@ class FlutterAnalyzeAppBenchmark extends Benchmark {
 
   Future<Null> init() {
     return inDirectory(config.flutterDirectory, () async {
-      await dart(['dev/tools/mega_gallery.dart']);
+      await dart(['dev/tools/mega_gallery.dart'], onCancel);
     });
   }
 
@@ -83,7 +94,7 @@ class FlutterAnalyzeAppBenchmark extends Benchmark {
   Future<num> run() async {
     rm(benchmarkFile);
     await inDirectory(megaDir, () async {
-      await flutter('analyze', options: ['--watch', '--benchmark']);
+      await flutter('analyze', onCancel, options: ['--watch', '--benchmark']);
     });
     return addBuildInfo(benchmarkFile, timestamp: timestamp, expected: 10.0, sdk: sdk, commit: commit);
   }

@@ -15,20 +15,29 @@ Task createRefreshTest({
   String sdk,
   String commit,
   DateTime timestamp
-}) {
-  return new Task(
-    'mega_gallery__refresh_time',
-    (_) async {
-      Benchmark benchmark = new EditRefreshBenchmark(sdk, commit, timestamp);
-      section(benchmark.name);
-      await runBenchmark(benchmark, iterations: 3);
-      return benchmark.bestResult;
-    }
-  );
+}) => new EditRefreshTask(sdk, commit, timestamp);
+
+class EditRefreshTask extends Task {
+
+  EditRefreshTask(this.sdk, this.commit, this.timestamp)
+      : super('mega_gallery__refresh_time');
+
+  final String sdk;
+  final String commit;
+  final DateTime timestamp;
+
+  @override
+  Future<TaskResultData> run() async {
+    Benchmark benchmark = new EditRefreshBenchmark(sdk, commit, timestamp, onCancel);
+    section(benchmark.name);
+    await runBenchmark(benchmark, iterations: 3, warmUpBenchmark: true);
+    return benchmark.bestResult;
+  }
 }
 
 class EditRefreshBenchmark extends Benchmark {
-  EditRefreshBenchmark(this.sdk, this.commit, this.timestamp) : super('edit refresh');
+  EditRefreshBenchmark(this.sdk, this.commit, this.timestamp, Future<Null> onCancel)
+      : super('edit refresh', onCancel);
 
   final String sdk;
   final String commit;
@@ -42,7 +51,7 @@ class EditRefreshBenchmark extends Benchmark {
 
   Future<Null> init() {
     return inDirectory(config.flutterDirectory, () async {
-      await dart(['dev/tools/mega_gallery.dart']);
+      await dart(['dev/tools/mega_gallery.dart'], onCancel);
     });
   }
 
@@ -51,7 +60,7 @@ class EditRefreshBenchmark extends Benchmark {
     rm(benchmarkFile);
     int exitCode = await inDirectory(megaDir, () async {
       return await flutter(
-        'run', options: ['-v', '-d', config.androidDeviceId, '--resident', '--benchmark'], canFail: true
+        'run', onCancel, options: ['-v', '-d', config.androidDeviceId, '--resident', '--benchmark'], canFail: true
       );
     });
     if (exitCode != 0)

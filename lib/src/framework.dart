@@ -8,22 +8,41 @@ import 'dart:convert' show JSON;
 
 import 'utils.dart';
 
-/// Performs actual work on the dashboard build box. Returns JSON data to be
-/// uploaded to Firebase.
-typedef Future<TaskResultData> TaskCallback(Task task);
+/// Maximum amount of time a single task is allowed to take to run.
+///
+/// If exceeded the task is considered to have failed.
+const Duration taskTimeout = const Duration(minutes: 7);
+
+/// Maximum amount of time cancelling a task is allowed to take.
+const Duration cancelTimeout = const Duration(minutes: 1);
 
 /// Represents a unit of work performed on the dashboard build box that can
 /// succeed, fail and be retried independently of others.
-class Task {
-  Task(this.name, this.callback);
+abstract class Task {
+  Task(this.name);
 
   /// The name of the task that shows up in log messages.
   ///
   /// This should be as unique as possible to avoid confusion.
   final String name;
 
+  final Completer<Null> _cancelCompleter = new Completer<Null>();
+
+  /// Signals that the task must be cancelled immediately.
+  ///
+  /// Task implementations must obey this signal by killing pending processes
+  /// and reclaiming subscriptions to streams, such as network requests.
+  ///
+  /// The signal may be sent any time whether the task is running or
+  /// not and must be robust enough to handle it without throwing.
+  Future<Null> get onCancel => _cancelCompleter.future;
+
   /// Performs actual work.
-  final TaskCallback callback;
+  Future<TaskResultData> run();
+
+  void cancel() {
+    _cancelCompleter.complete();
+  }
 }
 
 /// Runs a queue of tasks; collects results.
@@ -49,13 +68,24 @@ class TaskRunner {
       section('Running task ${task.name}');
       TaskResult result;
       try {
-        TaskResultData data = await task.callback(task);
+        TaskResultData data = await task.run().timeout(taskTimeout);
         if (data != null)
           result = new TaskResult.success(task, revision, data);
         else
           result = new TaskResult.failure(task, revision, 'Task data missing');
-      } catch (error) {
-        String message = '${task.name} failed: $error';
+      } catch (taskError, taskErrorStack) {
+        String message = '${task.name} failed: $taskError';
+        if (taskErrorStack != null) {
+          message += '\n\n$taskErrorStack';
+        }
+        try {
+          task.cancel();
+        } catch (cancelError, cancelErrorStack) {
+          message += '\n\nAttempted to cancel tasks, but failed due to: $cancelError';
+          if (cancelErrorStack != null) {
+            message += '\n\n$cancelErrorStack';
+          }
+        }
         print('');
         print(message);
         result = new TaskResult.failure(task, revision, message);
