@@ -163,6 +163,9 @@ var whenFirebaseReady = new Promise(function(resolve, reject) {
 
       for (let screenName in data) {
         if (data.hasOwnProperty(screenName)) {
+          if (screenName == '__metadata__') {
+            continue;
+          }
           let durations = data[screenName];
           durations.forEach(function(duration) {
             let div;
