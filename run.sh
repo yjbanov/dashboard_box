@@ -9,7 +9,7 @@ function clean_up {
   set +e
   killall adb
   set -e
-  ps -e -o pid,command | grep $ABSOLUTE_ROOT_DIRECTORY | grep -v grep | cut -d' ' -f1 | xargs kill
+  ps -e -o pid,command | grep $ABSOLUTE_ROOT_DIRECTORY | grep -v grep | grep -v setup.sh | grep -v run.sh | cut -d' ' -f1 | xargs kill
 
   popd
 }
