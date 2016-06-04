@@ -68,7 +68,7 @@ Future<Null> build() async {
     ..enqueueAll(createStartupTests())
     ..enqueue(createGalleryTest())
     ..enqueueAll(createAnalyzerTests(sdk: sdk, commit: revision, timestamp: timestamp))
-    ..enqueue(createRefreshTest());
+    ..enqueue(createRefreshTest(commit: revision, timestamp: timestamp));
 
   BuildResult result = await runner.run();
   section('Build results');

@@ -12,23 +12,23 @@ import 'framework.dart';
 import 'utils.dart';
 
 Task createRefreshTest({
-  String sdk,
   String commit,
   DateTime timestamp
-}) => new EditRefreshTask(sdk, commit, timestamp);
+}) => new EditRefreshTask(commit, timestamp);
 
 class EditRefreshTask extends Task {
+  EditRefreshTask(this.commit, this.timestamp)
+      : super('mega_gallery__refresh_time') {
+    assert(commit != null);
+    assert(timestamp != null);
+  }
 
-  EditRefreshTask(this.sdk, this.commit, this.timestamp)
-      : super('mega_gallery__refresh_time');
-
-  final String sdk;
   final String commit;
   final DateTime timestamp;
 
   @override
   Future<TaskResultData> run() async {
-    Benchmark benchmark = new EditRefreshBenchmark(sdk, commit, timestamp, onCancel);
+    Benchmark benchmark = new EditRefreshBenchmark(commit, timestamp, onCancel);
     section(benchmark.name);
     await runBenchmark(benchmark, iterations: 3, warmUpBenchmark: true);
     return benchmark.bestResult;
@@ -36,10 +36,9 @@ class EditRefreshTask extends Task {
 }
 
 class EditRefreshBenchmark extends Benchmark {
-  EditRefreshBenchmark(this.sdk, this.commit, this.timestamp, Future<Null> onCancel)
+  EditRefreshBenchmark(this.commit, this.timestamp, Future<Null> onCancel)
       : super('edit refresh', onCancel);
 
-  final String sdk;
   final String commit;
   final DateTime timestamp;
 
@@ -65,6 +64,6 @@ class EditRefreshBenchmark extends Benchmark {
     });
     if (exitCode != 0)
       return new Future.error(exitCode);
-    return addBuildInfo(benchmarkFile, timestamp: timestamp, expected: 200, sdk: sdk, commit: commit);
+    return addBuildInfo(benchmarkFile, timestamp: timestamp, expected: 200, commit: commit);
   }
 }
