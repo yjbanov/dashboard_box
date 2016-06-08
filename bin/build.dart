@@ -8,6 +8,7 @@ import 'dart:io';
 import 'package:path/path.dart' as path;
 import 'package:stack_trace/stack_trace.dart';
 
+import 'package:dashboard_box/src/adb.dart';
 import 'package:dashboard_box/src/analysis.dart';
 import 'package:dashboard_box/src/buildbot.dart';
 import 'package:dashboard_box/src/firebase.dart';
@@ -25,6 +26,14 @@ Future<Null> main(List<String> args) async {
 
   config = new Config(path.normalize(path.absolute(args.single)));
 
+  Future<Null> screenOff() async {
+    try {
+      await adb().sendToSleep();
+    } catch(error, stackTrace) {
+      print('Failed to turn off screen: $error\n$stackTrace');
+    }
+  }
+
   Chain.capture(() async {
     section('Build started on ${new DateTime.now()}');
     print(config);
@@ -36,10 +45,13 @@ Future<Null> main(List<String> args) async {
     // By this point all processes should have exited, and if they
     // didn't give them a couple of seconds then force exit.
     await new Future.delayed(const Duration(seconds: 2));
+
+    await screenOff();
     exit(0);
-  }, onError: (error, Chain chain) {
+  }, onError: (error, Chain chain) async {
     print(error);
     print(chain.terse);
+    await screenOff();
     exit(1);
   });
 }

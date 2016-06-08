@@ -6,6 +6,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
+import 'adb.dart';
 import 'framework.dart';
 import 'utils.dart';
 
@@ -16,6 +17,7 @@ class GalleryTransitionTest extends Task {
 
   @override
   Future<TaskResultData> run() async {
+    adb().unlock();
     Directory galleryDirectory = dir('${config.flutterDirectory.path}/examples/flutter_gallery');
     await inDirectory(galleryDirectory, () async {
       await pub('get', onCancel);

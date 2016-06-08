@@ -10,6 +10,9 @@ set -v
 pub global activate tuneup
 pub global run tuneup check
 
+# Run unit-tests
+pub run test
+
 # Re-generate the website.
 pub build
 
