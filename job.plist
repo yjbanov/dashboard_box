@@ -12,6 +12,8 @@
       <string>yes</string>
       <key>DART_SDK</key>
       <string>/usr/local/opt/dart/libexec</string>
+      <key>ANDROID_HOME</key>
+      <string>/Users/demouser/Library/Android/sdk</string>
     </dict>
 
     <key>ProgramArguments</key>
