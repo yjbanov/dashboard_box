@@ -34,8 +34,7 @@ class StartupTest extends Task {
     return await inDirectory(testDirectory, () async {
       await pub('get', onCancel);
       await flutter('run', onCancel, options: [
-        // TODO(yjbanov): switch to --profile when ready (http://dartbug.com/26550)
-        '--debug',
+        '--profile',
         '--trace-startup',
         '-d',
         config.androidDeviceId
@@ -61,8 +60,7 @@ class PerfTest extends Task {
     return inDirectory(testDirectory, () async {
       await pub('get', onCancel);
       await flutter('drive', onCancel, options: [
-        // TODO(yjbanov): switch to --profile when ready (http://dartbug.com/26550)
-        '--debug',
+        '--profile',
         '--trace-startup', // Enables "endless" timeline event buffering.
         '-t',
         testTarget,
