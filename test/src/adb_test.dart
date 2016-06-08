@@ -17,7 +17,7 @@ main() {
     });
 
     tearDown(() {
-      adb = realAdb;
+      adb = createRealAdb;
     });
 
     group('isAwake/isAsleep', () {

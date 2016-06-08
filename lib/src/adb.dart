@@ -10,10 +10,10 @@ typedef Adb AdbGetter();
 
 /// Get an instance of [Adb].
 ///
-/// See [realAdb] for signature. This can be overwritten for testing.
-AdbGetter adb = realAdb;
+/// See [createRealAdb] for signature. This can be overwritten for testing.
+AdbGetter adb = createRealAdb;
 
-Adb realAdb() {
+Adb createRealAdb() {
   return new Adb(deviceId: config.androidDeviceId);
 }
 
@@ -34,16 +34,14 @@ class Adb {
 
   /// Wake up the device if it is not awake using [togglePower].
   Future<Null> wakeUp() async {
-    if (!(await isAwake())) {
+    if (!(await isAwake()))
       await togglePower();
-    }
   }
 
   /// Send the device to sleep mode if it is not asleep using [togglePower].
   Future<Null> sendToSleep() async {
-    if (!(await isAsleep())) {
+    if (!(await isAsleep()))
       await togglePower();
-    }
   }
 
   /// Sends `KEYCODE_POWER` (26), which causes the device to toggle its mode
