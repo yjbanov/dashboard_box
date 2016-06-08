@@ -13,12 +13,6 @@ body {
   padding: 10px 10px 38px 10px;
 }
 
-body.build-broken {
-  animation-name: flash-broken-build;
-  animation-duration: 4s;
-  animation-iteration-count: infinite;
-}
-
 @keyframes flash-broken-build {
   0%   {
     background-color: #eee;

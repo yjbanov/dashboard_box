@@ -206,6 +206,9 @@ var whenFirebaseReady = new Promise(function(resolve, reject) {
     if (lastJobRanTime) {
       lastJobRanTime.textContent = buildData.build_timestamp;
     }
+
+    var dashboardLogLink = document.querySelector('#dashboard-log-link');
+    dashboardLogLink.href = `https://pantheon.corp.google.com/m/cloudstorage/b/flutter-dashboard/o/${ buildData.revision }/output.txt`;
   }
 
   function generateBoxes(measurements) {

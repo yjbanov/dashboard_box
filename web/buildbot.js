@@ -77,29 +77,24 @@ function allBuildsGreen() {
       getBuildStatus('Mac'),
       getBuildStatus('Mac Engine')
     ]).then(function() {
-      if (allBuildsGreen()) {
-        document.body.classList.remove('build-broken');
-      } else {
-        document.body.classList.add('build-broken');
-      }
-
-      var elem = document.querySelector('#dashboard-status');
-      elem.classList.remove('buildbot-sad');
+      var dashboardStatusSpan = document.querySelector('#dashboard-status');
+      var dashboardLogLink = document.querySelector('#dashboard-log-link');
+      dashboardStatusSpan.classList.remove('buildbot-sad');
       if (allBuildsGreen()) {
         // Show dashboard status green iff it and all other builds are green.
-        elem.style.color = 'green';
+        dashboardLogLink.style.color = '#4CAF50';
       } else if (buildStatuses['dashboard'] === false) {
         // The dashboard is explicitly broken. Go into the broken build mode.
-        elem.style.color = 'red';
-        elem.classList.add('buildbot-sad');
+        dashboardLogLink.style.color = 'red';
+        dashboardStatusSpan.classList.add('buildbot-sad');
       } else {
         // If one of the buildbots is red the dashboard status is irrelevant.
         // Showing it red won't add any useful information, and showing it green
         // is misleading.
-        elem.style.color = 'gray';
+        dashboardLogLink.style.color = '#DDD';
       }
 
-      setTimeout(refreshAllBuildStatuses, 10 * 1000);
+      setTimeout(refreshAllBuildStatuses, 5 * 1000);
     }, function() {
       // Schedule a fetch even if the previous one fails, but wait a little longer
       setTimeout(refreshAllBuildStatuses, 60 * 1000);
