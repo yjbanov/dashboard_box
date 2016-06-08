@@ -7,6 +7,7 @@ import 'dart:io';
 
 import 'package:path/path.dart' as path;
 
+import 'adb.dart';
 import 'benchmarks.dart';
 import 'framework.dart';
 import 'utils.dart';
@@ -28,6 +29,7 @@ class EditRefreshTask extends Task {
 
   @override
   Future<TaskResultData> run() async {
+    adb().unlock();
     Benchmark benchmark = new EditRefreshBenchmark(commit, timestamp, onCancel);
     section(benchmark.name);
     await runBenchmark(benchmark, iterations: 3, warmUpBenchmark: true);

@@ -6,6 +6,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:meta/meta.dart';
 import 'package:path/path.dart' as path;
 
 /// Virtual current working directory, which affect functions, such as [exec].
@@ -247,6 +248,21 @@ See: https://github.com/flutter/dashboard_box/blob/master/README.md
   String androidDeviceId;
   String firebaseFlutterDashboardToken;
 
+  String get adbPath {
+    String androidHome = Platform.environment['ANDROID_HOME'];
+
+    if (androidHome == null)
+      throw 'ANDROID_HOME environment variable missing. This variable must '
+            'point to the Android SDK directory containing platform-tools.';
+
+    File adbPath = file(path.join(androidHome, 'platform-tools/adb'));
+
+    if (!adbPath.existsSync())
+      throw 'adb not found at: $adbPath';
+
+    return adbPath.absolute.path;
+  }
+
   @override
   String toString() =>
 '''
@@ -257,6 +273,7 @@ scriptsDirectory: $scriptsDirectory
 configFile: $configFile
 dashboardBotStatusFile: $dashboardBotStatusFile
 androidDeviceId: $androidDeviceId
+adbPath: $adbPath
 '''.trim();
 }
 
@@ -367,4 +384,11 @@ num addBuildInfo(File jsonFile, {
 
   // Return the elapsed time of the benchmark (if any).
   return json['time'];
+}
+
+/// Splits [from] into lines and selects those that contain [pattern].
+Iterable<String> grep(Pattern pattern, {@required String from}) {
+  return from.split('\n').where((String line) {
+    return line.contains(pattern);
+  });
 }

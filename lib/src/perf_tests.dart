@@ -4,6 +4,7 @@
 
 import 'dart:async';
 
+import 'adb.dart';
 import 'framework.dart';
 import 'utils.dart';
 
@@ -32,6 +33,7 @@ class StartupTest extends Task {
 
   Future<TaskResultData> run() async {
     return await inDirectory(testDirectory, () async {
+      adb().unlock();
       await pub('get', onCancel);
       await flutter('run', onCancel, options: [
         '--profile',
@@ -58,6 +60,7 @@ class PerfTest extends Task {
   @override
   Future<TaskResultData> run() {
     return inDirectory(testDirectory, () async {
+      adb().unlock();
       await pub('get', onCancel);
       await flutter('drive', onCancel, options: [
         '--profile',
