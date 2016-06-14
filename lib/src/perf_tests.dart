@@ -3,6 +3,7 @@
 // found in the LICENSE file.
 
 import 'dart:async';
+import 'dart:convert' show JSON;
 
 import 'adb.dart';
 import 'framework.dart';
@@ -41,7 +42,11 @@ class StartupTest extends Task {
         '-d',
         config.androidDeviceId
       ]);
-      return new TaskResultData.fromFile(file('$testDirectory/build/start_up_info.json'));
+      Map<String, dynamic> data = JSON.decode(file('$testDirectory/build/start_up_info.json').readAsStringSync());
+      return new TaskResultData(data, benchmarkScoreKeys: <String>[
+        'engineEnterTimestampMicros',
+        'timeToFirstFrameMicros',
+      ]);
     });
   }
 }
@@ -70,7 +75,12 @@ class PerfTest extends Task {
         '-d',
         config.androidDeviceId
       ]);
-      return new TaskResultData.fromFile(file('$testDirectory/build/${timelineFileName}.timeline_summary.json'));
+      Map<String, dynamic> data = JSON.decode(file('$testDirectory/build/${timelineFileName}.timeline_summary.json').readAsStringSync());
+      return new TaskResultData(data, benchmarkScoreKeys: <String>[
+        'average_frame_build_time_millis',
+        'worst_frame_build_time_millis',
+        'missed_frame_build_budget_count',
+      ]);
     });
   }
 }

@@ -189,7 +189,7 @@ var whenFirebaseReady = new Promise(function(resolve, reject) {
 
   var ignoredMeasurements = [
     'dashboard_bot_status',
-    'stocks__start_up'
+    'golem_data'
   ];
 
   function updateLastJobRanTime(buildData) {
