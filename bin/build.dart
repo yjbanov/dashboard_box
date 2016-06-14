@@ -67,7 +67,7 @@ Future<Null> build() async {
     return null;
   }
 
-  await getFlutter(revision);
+  bool syncedFlutterRepo = await getFlutter(revision);
 
   DateTime timestamp = await getFlutterRepoCommitTimestamp(revision);
   String sdk = await getDartVersion();
@@ -91,7 +91,7 @@ Future<Null> build() async {
   for (TaskResult taskResult in result.results)
     print('  ${taskResult.task.name} ${taskResult.succeeded ? "succeeded" : "failed"}');
 
-  await generateBuildInfoFile(revision, result);
+  await generateBuildInfoFile(revision, result, syncedFlutterRepo);
   await uploadDataToFirebase(result);
   markAsRan(revision);
 }
@@ -126,12 +126,12 @@ void markAsRan(String revision) {
   _revisionMarkerFile(revision).writeAsStringSync(new DateTime.now().toString());
 }
 
-Future<Null> generateBuildInfoFile(String revision, BuildResult result) async {
+Future<Null> generateBuildInfoFile(String revision, BuildResult result, bool syncedFlutterRepo) async {
   Map<String, dynamic> buildInfo = <String, dynamic>{
     'build_timestamp': '${new DateTime.now()}',
     'dart_version': await getDartVersion(),
     'revision': revision,
-    'success': result.succeeded,
+    'success': result.succeeded && syncedFlutterRepo,
     'failed_task_count': result.failedTaskCount,
   };
   await config.dashboardBotStatusFile.writeAsString(jsonEncode(buildInfo));
