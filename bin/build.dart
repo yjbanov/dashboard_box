@@ -14,6 +14,7 @@ import 'package:dashboard_box/src/buildbot.dart';
 import 'package:dashboard_box/src/firebase.dart';
 import 'package:dashboard_box/src/framework.dart';
 import 'package:dashboard_box/src/gallery.dart';
+import 'package:dashboard_box/src/golem.dart';
 import 'package:dashboard_box/src/perf_tests.dart';
 import 'package:dashboard_box/src/refresh.dart';
 import 'package:dashboard_box/src/utils.dart';
@@ -70,12 +71,14 @@ Future<Null> build() async {
 
   DateTime timestamp = await getFlutterRepoCommitTimestamp(revision);
   String sdk = await getDartVersion();
+  int golemRevision = await computeGolemRevision();
   section('build info');
-  print('revision : $revision');
-  print('timestamp: $timestamp');
-  print('sdk      : $sdk');
+  print('revision       : $revision');
+  print('golem revision : $golemRevision');
+  print('timestamp      : $timestamp');
+  print('sdk            : $sdk');
 
-  TaskRunner runner = new TaskRunner(revision)
+  TaskRunner runner = new TaskRunner(revision, golemRevision)
     ..enqueueAll(createPerfTests())
     ..enqueueAll(createStartupTests())
     ..enqueue(createGalleryTest())
@@ -137,12 +140,23 @@ Future<Null> generateBuildInfoFile(String revision, BuildResult result) async {
 bool get shouldUploadData => Platform.environment['UPLOAD_DASHBOARD_DATA'] == 'yes';
 
 Future<Null> uploadDataToFirebase(BuildResult result) async {
+  Map<String, dynamic> golemData = <String, dynamic>{};
+
   for (TaskResult taskResult in result.results) {
     // TODO(devoncarew): We should also upload the fact that these tasks failed.
     if (taskResult.data == null)
       continue;
 
     Map<String, dynamic> data = new Map<String, dynamic>.from(taskResult.data.json);
+
+    if (taskResult.data.benchmarkScoreKeys != null) {
+      for (String scoreKey in taskResult.data.benchmarkScoreKeys.where(registeredBenchmarkScoreKeys.contains)) {
+        golemData['${taskResult.task.name}.$scoreKey'] = <String, dynamic>{
+          'golem_revision': result.golemRevision,
+          'score': taskResult.data.json[scoreKey],
+        };
+      }
+    }
 
     Map<String, dynamic> metadata = <String, dynamic>{
       'success': taskResult.succeeded,
@@ -152,8 +166,11 @@ Future<Null> uploadDataToFirebase(BuildResult result) async {
 
     data['__metadata__'] = metadata;
     await file('${config.dataDirectory.path}/${taskResult.task.name}.json')
-      .writeAsString(jsonEncode(data));
+        .writeAsString(jsonEncode(data));
   }
+
+  await file('${config.dataDirectory.path}/golem_data.json')
+      .writeAsString(jsonEncode(golemData));
 
   if (!shouldUploadData)
     return null;

@@ -67,9 +67,7 @@ Future<Null> syncToGolem() async {
   }
 
   try {
-    await updateFlutterRepo(revision);
-    int golemRevision = await computeGolemRevision();
-    await sendMetrics(golemRevision);
+    await sendMetrics();
   } catch(e, s) {
     print('ERROR: $e\n$s');
   }
@@ -77,20 +75,28 @@ Future<Null> syncToGolem() async {
   lastProcessedRevision = revision;
 }
 
-/// Sends a single value to a Golem benchmark.
-Future<Null> sendMetric({String firebaseKey, String metric, String golemBenchmark, int golemRevision}) async {
-  checkNotNull(firebaseKey, metric, golemBenchmark, golemRevision);
+/// Sends all metrics we care about tracking over time.
+Future<Null> sendMetrics() async {
+  print('Sending metrics to golem');
 
-  Map<String, dynamic> metricData = await firebaseDownloadCurrent(firebaseKey);
-  num score = metricData[metric];
+  Map<String, dynamic> data = await firebaseDownloadCurrent('golem_data');
+  for (String benchmarkName in data.keys) {
+    int golemRevision = data['golem_revision'];
+    num score = data['score'];
+    _sendMetric(benchmarkName, golemRevision, score);
+  }
+}
+
+/// Sends a single value to a Golem benchmark.
+Future<Null> _sendMetric(String benchmarkName, int golemRevision, num score) async {
+  checkNotNull(benchmarkName, golemRevision, score);
 
   print(
 '''
 Submitting:
-  Metric    : $metric
-  Score     : $score
-  Benchmark : $golemBenchmark
+  Benchmark : $benchmarkName
   Revision  : $golemRevision
+  Score     : $score
 '''.trim());
 
   http.Response resp = await http.post(
@@ -98,7 +104,7 @@ Submitting:
     body: jsonEncode([
         {
           'target': 'flutter',
-          'benchmark': golemBenchmark,
+          'benchmark': benchmarkName,
           'metric': 'Score',
           'revision': golemRevision,
           'score': score,
@@ -117,72 +123,4 @@ Submitting:
   } else {
     print('INFO: Server says "${resp.body}"');
   }
-}
-
-/// Computes a golem-compliant revision number.
-///
-/// Golem does not understand git commit hashes. It needs a monotonically
-/// increasing integer number as the revision (Subversion legacy).
-Future<int> computeGolemRevision() async {
-  String gitRevs = await inDirectory(config.flutterDirectory, () async {
-    return eval('git', ['rev-list', 'origin/master', '--topo-order', '--first-parent', 'origin/master']);
-  });
-  return gitRevs.split('\n').length;
-}
-
-/// Checks out a clean git branch of Flutter at the given [revision].
-Future<Null> updateFlutterRepo(String revision) async {
-  section('Updating Flutter repo');
-
-  cd(config.rootDirectory);
-  if (!exists(config.flutterDirectory))
-    await exec('git', ['clone', 'https://github.com/flutter/flutter.git']);
-
-  await inDirectory(config.flutterDirectory, () async {
-    await exec('git', ['clean', '-d', '-f', '-x']);
-    await exec('git', ['fetch', 'origin', 'master']);
-    await exec('git', ['checkout', revision]);
-  });
-}
-
-/// Sends all metrics we care about tracking over time.
-Future<Null> sendMetrics(int golemRevision) async {
-  print('Sending metrics to golem');
-
-  // TODO: send analysis numbers too
-
-  await sendMetric(
-    firebaseKey: 'complex_layout_scroll_perf__timeline_summary',
-    metric: 'average_frame_build_time_millis',
-    golemBenchmark: 'complex_layout_scroll_perf.average_frame_build_time_millis',
-    golemRevision: golemRevision
-  );
-
-  await sendMetric(
-    firebaseKey: 'complex_layout_scroll_perf__timeline_summary',
-    metric: 'missed_frame_build_budget_count',
-    golemBenchmark: 'complex_layout_scroll_perf.missed_frame_build_budget_count',
-    golemRevision: golemRevision
-  );
-
-  await sendMetric(
-    firebaseKey: 'complex_layout_scroll_perf__timeline_summary',
-    metric: 'worst_frame_build_time_millis',
-    golemBenchmark: 'complex_layout_scroll_perf.worst_frame_build_time_millis',
-    golemRevision: golemRevision
-  );
-
-  await sendMetric(
-    firebaseKey: 'complex_layout__start_up',
-    metric: 'timeToFirstFrameMicros',
-    golemBenchmark: 'complex_layout_startup.time_to_first_frame_micros',
-    golemRevision: golemRevision
-  );
-
-  await sendMetric(
-    firebaseKey: 'complex_layout__start_up',
-    metric: 'engineEnterTimestampMicros',
-    golemBenchmark: 'complex_layout_startup.engine_enter_timestamp_micros',
-    golemRevision: golemRevision
-  );
 }
