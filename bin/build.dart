@@ -150,11 +150,14 @@ Future<Null> uploadDataToFirebase(BuildResult result) async {
     Map<String, dynamic> data = new Map<String, dynamic>.from(taskResult.data.json);
 
     if (taskResult.data.benchmarkScoreKeys != null) {
-      for (String scoreKey in taskResult.data.benchmarkScoreKeys.where(registeredBenchmarkScoreKeys.contains)) {
-        golemData['${taskResult.task.name}.$scoreKey'] = <String, dynamic>{
-          'golem_revision': result.golemRevision,
-          'score': taskResult.data.json[scoreKey],
-        };
+      for (String scoreKey in taskResult.data.benchmarkScoreKeys) {
+        String benchmarkName = '${taskResult.task.name}.$scoreKey';
+        if (registeredBenchmarkNames.contains(benchmarkName)) {
+          golemData[benchmarkName] = <String, dynamic>{
+            'golem_revision': result.golemRevision,
+            'score': taskResult.data.json[scoreKey],
+          };
+        }
       }
     }
 

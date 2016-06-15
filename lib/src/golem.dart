@@ -11,7 +11,7 @@ import 'utils.dart';
 /// This list must be in-sync with benchmarks listed in `flutterBenchmarks`
 /// variable defined in
 /// https://chrome-internal.googlesource.com/golem/+/master/config/benchmarks.dart
-const registeredBenchmarkScoreKeys = const <String>[
+const registeredBenchmarkNames = const <String>[
   'complex_layout__start_up.engineEnterTimestampMicros',
   'complex_layout__start_up.timeToFirstFrameMicros',
   'complex_layout_scroll_perf__timeline_summary.average_frame_build_time_millis',
