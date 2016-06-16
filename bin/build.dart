@@ -140,7 +140,7 @@ Future<Null> generateBuildInfoFile(String revision, BuildResult result, bool syn
 bool get shouldUploadData => Platform.environment['UPLOAD_DASHBOARD_DATA'] == 'yes';
 
 Future<Null> uploadDataToFirebase(BuildResult result) async {
-  Map<String, dynamic> golemData = <String, dynamic>{};
+  List<Map<String, dynamic>> golemData = <Map<String, dynamic>>[];
 
   for (TaskResult taskResult in result.results) {
     // TODO(devoncarew): We should also upload the fact that these tasks failed.
@@ -153,10 +153,11 @@ Future<Null> uploadDataToFirebase(BuildResult result) async {
       for (String scoreKey in taskResult.data.benchmarkScoreKeys) {
         String benchmarkName = '${taskResult.task.name}.$scoreKey';
         if (registeredBenchmarkNames.contains(benchmarkName)) {
-          golemData[benchmarkName] = <String, dynamic>{
+          golemData.add(<String, dynamic>{
+            'benchmark_name': benchmarkName,
             'golem_revision': result.golemRevision,
             'score': taskResult.data.json[scoreKey],
-          };
+          });
         }
       }
     }
@@ -172,8 +173,8 @@ Future<Null> uploadDataToFirebase(BuildResult result) async {
         .writeAsString(jsonEncode(data));
   }
 
-//  await file('${config.dataDirectory.path}/golem_data.json')
-//      .writeAsString(jsonEncode(golemData));
+  await file('${config.dataDirectory.path}/golem_data.json')
+      .writeAsString(jsonEncode(golemData));
 
   if (!shouldUploadData)
     return null;

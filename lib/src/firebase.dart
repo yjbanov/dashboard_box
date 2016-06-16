@@ -49,7 +49,7 @@ Future<Null> uploadMeasurementToFirebase(String measurementKey, dynamic jsonData
   await ref.child('history').push(jsonData);
 }
 
-Future<Map<String, dynamic>> firebaseDownloadCurrent(String measurementKey) async {
+Future<dynamic> firebaseDownloadCurrent(String measurementKey) async {
   DataSnapshot snapshot = await _measurements()
       .child(measurementKey)
       .child('current')

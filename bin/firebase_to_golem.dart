@@ -79,10 +79,11 @@ Future<Null> syncToGolem() async {
 Future<Null> sendMetrics() async {
   print('Sending metrics to golem');
 
-  Map<String, dynamic> data = await firebaseDownloadCurrent('golem_data');
-  for (String benchmarkName in data.keys) {
-    int golemRevision = data['golem_revision'];
-    num score = data['score'];
+  List<Map<String, dynamic>> golemResults = await firebaseDownloadCurrent('golem_data');
+  for (Map<String, dynamic> result in golemResults) {
+    String benchmarkName = result['benchmark_name'];
+    int golemRevision = result['golem_revision'];
+    num score = result['score'];
     _sendMetric(benchmarkName, golemRevision, score);
   }
 }
