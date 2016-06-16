@@ -172,8 +172,8 @@ Future<Null> uploadDataToFirebase(BuildResult result) async {
         .writeAsString(jsonEncode(data));
   }
 
-  await file('${config.dataDirectory.path}/golem_data.json')
-      .writeAsString(jsonEncode(golemData));
+//  await file('${config.dataDirectory.path}/golem_data.json')
+//      .writeAsString(jsonEncode(golemData));
 
   if (!shouldUploadData)
     return null;
