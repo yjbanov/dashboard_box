@@ -58,5 +58,5 @@ Future<dynamic> firebaseDownloadCurrent(String measurementKey) async {
   if (!snapshot.exists)
     return null;
 
-  return snapshot.val as Map<String, dynamic>;
+  return snapshot.val;
 }
