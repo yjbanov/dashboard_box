@@ -184,6 +184,17 @@ var whenFirebaseReady = new Promise(function(resolve, reject) {
       }
 
       document.querySelector('#container').appendChild(clone);
+    },
+
+    '__size': function(measurementType, measurementName, data) {
+      var clone = _cloneTemplate(measurementType);
+      if (clone == null) return;
+      var title = _getTitleForTemplate(measurementType, measurementName);
+      clone.querySelector('.metric-name').textContent = title;
+      // Formats with thousands separator
+      clone.querySelector('.metric-number').textContent =
+          Math.round(data.release_size_in_bytes / 1000).toLocaleString('en', { useGrouping: true });
+      document.querySelector('#container').appendChild(clone);
     }
   };
 

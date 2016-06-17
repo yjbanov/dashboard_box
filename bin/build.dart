@@ -81,7 +81,8 @@ Future<Null> build() async {
   TaskRunner runner = new TaskRunner(revision, golemRevision)
     ..enqueueAll(createPerfTests())
     ..enqueueAll(createStartupTests())
-    ..enqueue(createGalleryTest())
+    ..enqueue(createGalleryTransitionTest())
+    ..enqueue(createGallerySizeTest())
     ..enqueueAll(createAnalyzerTests(sdk: sdk, commit: revision, timestamp: timestamp))
     ..enqueue(createRefreshTest(commit: revision, timestamp: timestamp));
 
