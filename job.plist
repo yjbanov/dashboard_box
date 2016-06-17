@@ -27,9 +27,9 @@
     <key>StartInterval</key>
     <integer>60</integer>
 
-    <!-- Time out if the job doesn't exit in 20 minutes -->
+    <!-- Time out if the job doesn't exit in 40 minutes -->
     <key>ExitTimeOut</key>
-    <integer>1200</integer>
+    <integer>2400</integer>
 
     <key>StandardOutPath</key>
     <string>/tmp/flutter.dashboard.launchd.stdout</string>
