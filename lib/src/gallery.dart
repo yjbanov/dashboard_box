@@ -12,8 +12,6 @@ import 'utils.dart';
 
 Task createGalleryTransitionTest() => new GalleryTransitionTest();
 
-Task createGallerySizeTest() => new GallerySizeTest();
-
 class GalleryTransitionTest extends Task {
   GalleryTransitionTest() : super('flutter_gallery__transition_perf');
 
@@ -43,25 +41,5 @@ class GalleryTransitionTest extends Task {
     );
 
     return new TaskResultData(clean);
-  }
-}
-
-class GallerySizeTest extends Task {
-  GallerySizeTest() : super('flutter_gallery__size');
-
-  @override
-  Future<TaskResultData> run() async {
-    Directory galleryDirectory = dir('${config.flutterDirectory.path}/examples/flutter_gallery');
-    await inDirectory(galleryDirectory, () async {
-      await pub('get', onCancel);
-      await flutter('build', onCancel, options: ['clean']);
-      await flutter('build', onCancel, options: ['apk', '--release']);
-    });
-
-    return new TaskResultData({
-      'release_size_in_bytes': await file('${galleryDirectory.path}/build/app.apk').length()
-    }, benchmarkScoreKeys: [
-      'release_size_in_bytes'
-    ]);
   }
 }
