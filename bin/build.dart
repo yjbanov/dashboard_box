@@ -17,6 +17,7 @@ import 'package:dashboard_box/src/gallery.dart';
 import 'package:dashboard_box/src/golem.dart';
 import 'package:dashboard_box/src/perf_tests.dart';
 import 'package:dashboard_box/src/refresh.dart';
+import 'package:dashboard_box/src/size_tests.dart';
 import 'package:dashboard_box/src/utils.dart';
 
 const Duration totalBuildTimeout = const Duration(minutes: 30);
@@ -83,7 +84,7 @@ Future<Null> build() async {
     ..enqueueAll(createStartupTests())
     ..enqueueAll(createBuildTests())
     ..enqueue(createGalleryTransitionTest())
-    ..enqueue(createGallerySizeTest())
+    ..enqueue(createBasicMaterialAppSizeTest())
     ..enqueueAll(createAnalyzerTests(sdk: sdk, commit: revision, timestamp: timestamp))
     ..enqueue(createRefreshTest(commit: revision, timestamp: timestamp));
 
