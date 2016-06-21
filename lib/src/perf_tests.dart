@@ -25,6 +25,11 @@ List<Task> createStartupTests() => <Task>[
   new StartupTest('complex_layout__start_up', '${config.flutterDirectory.path}/dev/benchmarks/complex_layout'),
 ];
 
+List<Task> createBuildTests() => <Task>[
+  new BuildTest('flutter_gallery__build', '${config.flutterDirectory.path}/examples/flutter_gallery'),
+  new BuildTest('complex_layout__build', '${config.flutterDirectory.path}/dev/benchmarks/complex_layout'),
+];
+
 /// Measure application startup performance.
 class StartupTest extends Task {
 
@@ -80,6 +85,53 @@ class PerfTest extends Task {
         'average_frame_build_time_millis',
         'worst_frame_build_time_millis',
         'missed_frame_build_budget_count',
+      ]);
+    });
+  }
+}
+
+
+class BuildTest extends Task {
+
+  BuildTest(String name, this.testDirectory) : super(name);
+
+  final String testDirectory;
+
+  Future<TaskResultData> run() async {
+    return await inDirectory(testDirectory, () async {
+      adb().unlock();
+      await pub('get', onCancel);
+
+      var watch = new Stopwatch()..start();
+      await flutter('build', onCancel, options: [
+        'aot',
+        '--profile',
+        '--no-pub',
+        '--target-platform', 'android-arm'  // Generate blobs instead of assembly.
+      ]);
+      watch.stop();
+
+      var vmisolateSize = file("$testDirectory/build/aot/snapshot_aot_vmisolate").lengthSync();
+      var isolateSize = file("$testDirectory/build/aot/snapshot_aot_isolate").lengthSync();
+      var instructionsSize = file("$testDirectory/build/aot/snapshot_aot_instr").lengthSync();
+      var rodataSize = file("$testDirectory/build/aot/snapshot_aot_rodata").lengthSync();
+      var totalSize = vmisolateSize + isolateSize + instructionsSize + rodataSize;
+
+      Map<String, dynamic> data = {
+        'aot_snapshot_build_millis': watch.elapsedMilliseconds,
+        'aot_snapshot_size_vmisolate': vmisolateSize,
+        'aot_snapshot_size_isolate': isolateSize,
+        'aot_snapshot_size_instructions': instructionsSize,
+        'aot_snapshot_size_rodata': rodataSize,
+        'aot_snapshot_size_total': totalSize,
+      };
+      return new TaskResultData(data, benchmarkScoreKeys: <String>[
+        'aot_snapshot_build_millis',
+        'aot_snapshot_size_vmisolate',
+        'aot_snapshot_size_isolate',
+        'aot_snapshot_size_instructions',
+        'aot_snapshot_size_rodata',
+        'aot_snapshot_size_total',
       ]);
     });
   }

@@ -14,12 +14,25 @@ import 'utils.dart';
 const registeredBenchmarkNames = const <String>[
   'complex_layout__start_up.engineEnterTimestampMicros',
   'complex_layout__start_up.timeToFirstFrameMicros',
+  'complex_layout__build.aot_snapshot_build_millis',
+  'complex_layout__build.aot_snapshot_size_vmisolate',
+  'complex_layout__build.aot_snapshot_size_isolate',
+  'complex_layout__build.aot_snapshot_size_instructions',
+  'complex_layout__build.aot_snapshot_size_rodata',
+  'complex_layout__build.aot_snapshot_size_total',
+
   'complex_layout_scroll_perf__timeline_summary.average_frame_build_time_millis',
   'complex_layout_scroll_perf__timeline_summary.missed_frame_build_budget_count',
   'complex_layout_scroll_perf__timeline_summary.worst_frame_build_time_millis',
 
   'flutter_gallery__start_up.engineEnterTimestampMicros',
   'flutter_gallery__start_up.timeToFirstFrameMicros',
+  'flutter_gallery__build.aot_snapshot_build_millis',
+  'flutter_gallery__build.aot_snapshot_size_vmisolate',
+  'flutter_gallery__build.aot_snapshot_size_isolate',
+  'flutter_gallery__build.aot_snapshot_size_instructions',
+  'flutter_gallery__build.aot_snapshot_size_rodata',
+  'flutter_gallery__build.aot_snapshot_size_total',
 ];
 
 /// Computes a golem-compliant revision number.
