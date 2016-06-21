@@ -5,21 +5,27 @@
 import 'dart:async';
 import 'dart:io';
 
+import 'package:meta/meta.dart';
 import 'package:path/path.dart' as path;
 
 import 'benchmarks.dart';
 import 'framework.dart';
 import 'utils.dart';
 
-List<Task> createAnalyzerTests({
-  String sdk,
-  String commit,
-  DateTime timestamp
+Task createAnalyzerCliTest({
+  @required String sdk,
+  @required String commit,
+  @required DateTime timestamp
 }) {
-  return <Task>[
-    new AnalyzerCliTask(sdk, commit, timestamp),
-    new AnalyzerServerTask(sdk, commit, timestamp),
-  ];
+  return new AnalyzerCliTask(sdk, commit, timestamp);
+}
+
+Task createAnalyzerServerTest({
+  @required String sdk,
+  @required String commit,
+  @required DateTime timestamp
+}) {
+  return new AnalyzerServerTask(sdk, commit, timestamp);
 }
 
 abstract class AnalyzerTask extends Task {

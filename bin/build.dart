@@ -79,14 +79,18 @@ Future<Null> build() async {
   print('timestamp      : $timestamp');
   print('sdk            : $sdk');
 
-  TaskRunner runner = new TaskRunner(revision, golemRevision)
-    ..enqueueAll(createPerfTests())
-    ..enqueueAll(createStartupTests())
-    ..enqueueAll(createBuildTests())
-    ..enqueue(createGalleryTransitionTest())
-    ..enqueue(createBasicMaterialAppSizeTest())
-    ..enqueueAll(createAnalyzerTests(sdk: sdk, commit: revision, timestamp: timestamp))
-    ..enqueue(createRefreshTest(commit: revision, timestamp: timestamp));
+  TaskRunner runner = new TaskRunner(revision, golemRevision, <Task>[
+    createComplexLayoutScrollPerfTest(),
+    createFlutterGalleryStartupTest(),
+    createComplexLayoutStartupTest(),
+    createFlutterGalleryBuildTest(),
+    createComplexLayoutBuildTest(),
+    createGalleryTransitionTest(),
+    createBasicMaterialAppSizeTest(),
+    createAnalyzerCliTest(sdk: sdk, commit: revision, timestamp: timestamp),
+    createAnalyzerServerTest(sdk: sdk, commit: revision, timestamp: timestamp),
+    createRefreshTest(commit: revision, timestamp: timestamp),
+  ]);
 
   BuildResult result = await runner.run();
   section('Build results');

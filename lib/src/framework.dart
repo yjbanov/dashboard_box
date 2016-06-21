@@ -47,7 +47,7 @@ abstract class Task {
 
 /// Runs a queue of tasks; collects results.
 class TaskRunner {
-  TaskRunner(this.revision, this.golemRevision);
+  TaskRunner(this.revision, this.golemRevision, this.tasks);
 
   /// Flutter repository revision at which this runner ran.
   final String revision;
@@ -56,20 +56,12 @@ class TaskRunner {
   ///
   /// See [computeGolemRevision].
   final int golemRevision;
-  final List<Task> _taskQueue = <Task>[];
-
-  void enqueue(Task task) {
-    _taskQueue.add(task);
-  }
-
-  void enqueueAll(Iterable<Task> tasks) {
-    _taskQueue.addAll(tasks);
-  }
+  final List<Task> tasks;
 
   Future<BuildResult> run() async {
     List<TaskResult> results = <TaskResult>[];
 
-    for (Task task in _taskQueue) {
+    for (Task task in tasks) {
       section('Running task ${task.name}');
       TaskResult result;
       try {
