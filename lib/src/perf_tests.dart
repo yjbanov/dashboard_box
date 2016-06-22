@@ -9,26 +9,30 @@ import 'adb.dart';
 import 'framework.dart';
 import 'utils.dart';
 
-List<Task> createPerfTests() {
-  return <Task>[
-    new PerfTest(
-      'complex_layout_scroll_perf__timeline_summary',
-      '${config.flutterDirectory.path}/dev/benchmarks/complex_layout',
-      'test_driver/scroll_perf.dart',
-      'complex_layout_scroll_perf'
-    )
-  ];
+Task createComplexLayoutScrollPerfTest() {
+  return new PerfTest(
+    'complex_layout_scroll_perf__timeline_summary',
+    '${config.flutterDirectory.path}/dev/benchmarks/complex_layout',
+    'test_driver/scroll_perf.dart',
+    'complex_layout_scroll_perf'
+  );
 }
 
-List<Task> createStartupTests() => <Task>[
-  new StartupTest('flutter_gallery__start_up', '${config.flutterDirectory.path}/examples/flutter_gallery'),
-  new StartupTest('complex_layout__start_up', '${config.flutterDirectory.path}/dev/benchmarks/complex_layout'),
-];
+Task createFlutterGalleryStartupTest() {
+  return new StartupTest('flutter_gallery__start_up', '${config.flutterDirectory.path}/examples/flutter_gallery');
+}
 
-List<Task> createBuildTests() => <Task>[
-  new BuildTest('flutter_gallery__build', '${config.flutterDirectory.path}/examples/flutter_gallery'),
-  new BuildTest('complex_layout__build', '${config.flutterDirectory.path}/dev/benchmarks/complex_layout'),
-];
+Task createComplexLayoutStartupTest() {
+  return new StartupTest('complex_layout__start_up', '${config.flutterDirectory.path}/dev/benchmarks/complex_layout');
+}
+
+Task createFlutterGalleryBuildTest() {
+  return new BuildTest('flutter_gallery__build', '${config.flutterDirectory.path}/examples/flutter_gallery');
+}
+
+Task createComplexLayoutBuildTest() {
+  return new BuildTest('complex_layout__build', '${config.flutterDirectory.path}/dev/benchmarks/complex_layout');
+}
 
 /// Measure application startup performance.
 class StartupTest extends Task {
