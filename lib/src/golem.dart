@@ -12,7 +12,6 @@ import 'utils.dart';
 /// variable defined in
 /// https://chrome-internal.googlesource.com/golem/+/master/config/benchmarks.dart
 const registeredBenchmarkNames = const <String>[
-  'complex_layout__start_up.engineEnterTimestampMicros',
   'complex_layout__start_up.timeToFirstFrameMicros',
   'complex_layout__build.aot_snapshot_build_millis',
   'complex_layout__build.aot_snapshot_size_vmisolate',
@@ -25,7 +24,6 @@ const registeredBenchmarkNames = const <String>[
   'complex_layout_scroll_perf__timeline_summary.missed_frame_build_budget_count',
   'complex_layout_scroll_perf__timeline_summary.worst_frame_build_time_millis',
 
-  'flutter_gallery__start_up.engineEnterTimestampMicros',
   'flutter_gallery__start_up.timeToFirstFrameMicros',
   'flutter_gallery__build.aot_snapshot_build_millis',
   'flutter_gallery__build.aot_snapshot_size_vmisolate',
