@@ -193,7 +193,7 @@ var whenFirebaseReady = new Promise(function(resolve, reject) {
       clone.querySelector('.metric-name').textContent = title;
       // Formats with thousands separator
       clone.querySelector('.metric-number').textContent =
-          Math.round(data.release_size_in_bytes / 1000).toLocaleString('en', { useGrouping: true });
+          Math.round(data.release_size_in_bytes / 1024).toLocaleString('en', { useGrouping: true });
       document.querySelector('#container').appendChild(clone);
     }
   };
