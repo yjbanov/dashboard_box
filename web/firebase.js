@@ -229,7 +229,7 @@ var whenFirebaseReady = new Promise(function(resolve, reject) {
             .substring(measurementName.indexOf('__'), measurementName.length);
         var generator = generators[measurementType];
         if (generator === undefined) {
-          console.error('WARNING: Did not find generator for ' + measurementName +
+          console.log('Did not find generator for ' + measurementName +
               ' of type ' + measurementType);
           continue;
         }

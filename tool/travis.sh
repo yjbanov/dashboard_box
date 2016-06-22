@@ -14,7 +14,7 @@ pub global run tuneup check
 pub run test
 
 # Re-generate the website.
-pub build
+pub build --mode=debug
 
 # TODO: deploy to a personal staging site, based on github ID, when not
 #       merging into master

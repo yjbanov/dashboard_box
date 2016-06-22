@@ -6,6 +6,7 @@ import 'dart:html' hide Event;
 
 import 'package:charted/charts/charts.dart';
 import 'package:firebase/firebase.dart';
+import 'package:stack_trace/stack_trace.dart';
 
 Firebase firebase;
 CartesianArea analysisChartArea;
@@ -17,14 +18,28 @@ Map<int, Measurement> galleryMeasurements = {};
 Map<int, Measurement> refreshMeasurements = {};
 
 void main() {
-  _updateAnalysisChart();
-  _updateDartdocChart();
-  _updateRefreshChart();
+  Chain.capture(() {
+    _main();
+  });
+}
+
+void _main() {
+  _update(_updateAnalysisChart);
+  _update(_updateDartdocChart);
+  _update(_updateRefreshChart);
 
   firebase = new Firebase("https://purple-butterfly-3000.firebaseio.com/");
   firebase.onAuth().listen((context) {
     _listenForChartChanges();
   });
+}
+
+void _update(void updateFn()) {
+  try {
+    updateFn();
+  } catch (error, stack) {
+    print('$error\n$stack');
+  }
 }
 
 void _listenForChartChanges() {
@@ -87,20 +102,21 @@ void _updateCharts() {
   List analysisData = times.map((int time) {
     return [time, repoMeasurements[time]?.time, galleryMeasurements[time]?.time];
   }).toList();
-  _updateAnalysisChart(analysisData);
+
+  _update(() => _updateAnalysisChart(analysisData));
 
   times = repoMeasurements.keys.toList()..sort();
   List dartdocData = times
     .map((int time) => [time, repoMeasurements[time].missingDartDocs])
     .where((List tuple) => tuple[1] != null)
     .toList();
-  _updateDartdocChart(dartdocData);
+  _update(() => _updateDartdocChart(dartdocData));
 
   times = refreshMeasurements.keys.toList()..sort();
   List refreshData = times
     .map((int time) => [time, refreshMeasurements[time].time])
     .toList();
-  _updateRefreshChart(refreshData);
+  _update(() => _updateRefreshChart(refreshData));
 }
 
 class Measurement {
