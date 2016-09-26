@@ -1,7 +1,7 @@
 {
   "rules": {
-    ".read": "auth.provider === 'google' && root.child('authorized_users').child(auth.uid).exists()",
-    ".write": "auth.provider === 'google' && root.child('authorized_users').child(auth.uid).exists()",
+    ".read": "auth.provider === 'google' && (auth.token.email.matches(/.*@google.com$/) || root.child('authorized_users').child(auth.uid).exists())",
+    ".write": "auth.provider === 'google' && (auth.token.email.matches(/.*@google.com$/) || root.child('authorized_users').child(auth.uid).exists())",
     "measurements": {
       "analyzer_cli__analysis_time": {
         "history": {
