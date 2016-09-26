@@ -6,18 +6,7 @@ var whenFirebaseReady = new Promise(function(resolve, reject) {
       console.log("User " + authData.uid + " is logged in with " +
         authData.provider + " and has displayName '" +
         authData.google.displayName + "' and email " + authData.google.email);
-      // Save the user's profile into the database so we can
-      // use them in Security and Firebase Rules.
-      // We don't trust this data, so don't rely on the email.
-      ref.child("users").child(authData.uid).set({
-        provider: authData.provider,
-        name: authData.google.displayName,
-        email: authData.google.email || 'undefined'
-      }).then(function(snapshot) {
-        resolve(ref);
-      }, function(error) {
-        console.error(error);
-      });
+      resolve(ref);
     } else {
       console.log("User is logged out");
     }
