@@ -1,3 +1,5 @@
+"use strict";
+
 var ref = new Firebase("https://purple-butterfly-3000.firebaseio.com/");
 
 var whenFirebaseReady = new Promise(function(resolve, reject) {
@@ -184,6 +186,29 @@ var whenFirebaseReady = new Promise(function(resolve, reject) {
       clone.querySelector('.metric-number').textContent =
           Math.round(data.release_size_in_bytes / 1024).toLocaleString('en', { useGrouping: true });
       document.querySelector('#container').appendChild(clone);
+    },
+
+    '__benchmark': function(measurementType, measurementName, data) {
+      var clone = _cloneTemplate(measurementType);
+      if (clone == null) return;
+      var title = _getTitleForTemplate(measurementType, measurementName);
+      clone.querySelector('.metric-name').textContent = title;
+      var cardInside = clone.querySelector('.card-inside');
+      for (var result of data['__golem__']) {
+        var resultContainer = document.createElement('div');
+
+        var resultName = document.createElement('span');
+        var name = result['benchmark_name'];
+        resultName.textContent = name.substring(name.indexOf('.') + 1);
+        resultContainer.appendChild(resultName);
+
+        var score = document.createElement('span');
+        score.textContent = `: ${ result['score'] }`;
+        resultContainer.appendChild(score);
+
+        cardInside.appendChild(resultContainer);
+      }
+      document.querySelector('#container').appendChild(clone);
     }
   };
 
@@ -218,7 +243,7 @@ var whenFirebaseReady = new Promise(function(resolve, reject) {
             .substring(measurementName.indexOf('__'), measurementName.length);
         var generator = generators[measurementType];
         if (generator === undefined) {
-          console.log('Did not find generator for ' + measurementName +
+          console.error('WARNING: Did not find generator for ' + measurementName +
               ' of type ' + measurementType);
           continue;
         }
